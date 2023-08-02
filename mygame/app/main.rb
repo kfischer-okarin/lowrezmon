@@ -37,6 +37,9 @@ def render(args)
     x: LOWREZ_X_OFFSET, y: LOWREZ_Y_OFFSET, w: LOWREZ_RENDER_SIZE, h: LOWREZ_RENDER_SIZE,
     path: :screen
   }.sprite!
+  return if $gtk.production?
+
+  render_fps(args)
 end
 
 def convert_mouse_position_to_lowrez_coordinates(args)
@@ -52,6 +55,13 @@ def convert_mouse_position_to_lowrez_coordinates(args)
   }
   mouse.x = state.lowrez_mouse_position[:x]
   mouse.y = state.lowrez_mouse_position[:y]
+end
+
+def render_fps(args)
+  args.outputs.primitives << {
+    x: 0, y: 720, text: '%d' % $gtk.current_framerate,
+    r: 255, g: 255, b: 255
+  }.label!
 end
 
 def build_label(values)
