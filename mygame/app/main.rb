@@ -1,3 +1,4 @@
+require 'lib/animations.rb'
 require 'app/scenes/gameplay.rb'
 
 LOWREZ_ZOOM = 11
