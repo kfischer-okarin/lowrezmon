@@ -21,3 +21,5 @@ VERSION.txt
 .DS_Store
 vendor
 Gemfile.lock
+
+mygame/screenshots

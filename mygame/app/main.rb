@@ -40,6 +40,7 @@ def render(args)
   return if $gtk.production?
 
   render_fps(args)
+  handle_screenshot(args)
 end
 
 def convert_mouse_position_to_lowrez_coordinates(args)
@@ -62,6 +63,17 @@ def render_fps(args)
     x: 0, y: 720, text: '%d' % $gtk.current_framerate,
     r: 255, g: 255, b: 255
   }.label!
+end
+
+def handle_screenshot(args)
+  return unless args.inputs.keyboard.key_down.zero
+
+  time = Time.now
+  args.outputs.screenshots << {
+    x: LOWREZ_X_OFFSET, y: LOWREZ_Y_OFFSET, w: LOWREZ_RENDER_SIZE, h: LOWREZ_RENDER_SIZE,
+    # current timestamp
+    path: 'screenshots/screenshot_%04d%02d%02d%02d%02d%02d.png' % [time.year, time.month, time.day, time.hour, time.min, time.sec]
+  }
 end
 
 def build_label(values)
