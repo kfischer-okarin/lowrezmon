@@ -1,6 +1,6 @@
 module Scenes
   class Gameplay
-    def update(inputs, state)
+    def update(args)
     end
 
     def render(screen, state)

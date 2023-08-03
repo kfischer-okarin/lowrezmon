@@ -1,4 +1,5 @@
 require 'lib/animations.rb'
+require 'lib/cutscene.rb'
 require 'lib/spritesheet_font.rb'
 require 'app/font.rb'
 require 'app/scenes/gameplay.rb'
@@ -21,8 +22,12 @@ def setup(_args)
 end
 
 def update(args)
-  convert_mouse_position_to_lowrez_coordinates(args)
-  $scene.update(args.inputs, args.state)
+  mouse = args.inputs.mouse
+  args.state.lowrez_mouse_position = to_lowrez_coordinates(
+    x: mouse.x,
+    y: mouse.y
+  )
+  $scene.update(args)
 end
 
 def render(args)
@@ -45,19 +50,11 @@ def render(args)
   handle_screenshot(args)
 end
 
-def convert_mouse_position_to_lowrez_coordinates(args)
-  mouse = args.inputs.mouse
-  mouse_position = { x: mouse.x, y: mouse.y }
-  state = args.state
-  return if mouse_position == state.lowrez_mouse_position
-
-  state.original_mouse_position = mouse_position
-  state.lowrez_mouse_position = {
-    x: (mouse.x - LOWREZ_X_OFFSET).idiv(LOWREZ_ZOOM),
-    y: (mouse.y - LOWREZ_Y_OFFSET).idiv(LOWREZ_ZOOM)
+def to_lowrez_coordinates(point)
+  {
+    x: (point.x - LOWREZ_X_OFFSET).idiv(LOWREZ_ZOOM),
+    y: (point.y - LOWREZ_Y_OFFSET).idiv(LOWREZ_ZOOM)
   }
-  mouse.x = state.lowrez_mouse_position[:x]
-  mouse.y = state.lowrez_mouse_position[:y]
 end
 
 def render_fps(args)
