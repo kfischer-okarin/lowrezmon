@@ -25,7 +25,7 @@ def build_pokemini_letter_positions
 
   x = 0
   special_widths = {
-    'g' => 5,
+    'g' => 4,
     'i' => 1,
     'j' => 2,
     'l' => 1,
@@ -48,10 +48,9 @@ def build_pokemini_letter_positions
   special_widths = {
     '1' => 3,
     '2' => 4,
-    '3' => 4,
-    '4' => 4
+    '7' => 4
   }
-  '1234567890'.each_char do |number|
+  ('0'..'9').each do |number|
     w = special_widths[number] || 5
     result[number] = {
       tile_x: x,
@@ -105,11 +104,11 @@ end
 
 def build_pokemini_fatnumbers_letter_positions
   result = build_pokemini_letter_positions
-  x = 55
+  x = 56
   special_widths = {
     '1' => 4
   }
-  '1234567890'.each_char do |number|
+  ('0'..'9').each do |number|
     w = special_widths[number] || 5
     result[number] = {
       tile_x: x,
