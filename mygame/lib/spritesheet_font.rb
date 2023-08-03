@@ -4,14 +4,14 @@ class SpritesheetFont
   #     'A' => { tile_x: 0, tile_y: 0, tile_w: 3, tile_h: 5 },
   #     # ...
   #   }
-  def initialize(path:, letter_positions:)
+  def initialize(path:, letter_positions:, unknown_letter_sprite: nil)
     @path = path
-    black_box_for_unknown_letter = {
-      w: letter_positions['A'][:tile_w],
-      h: letter_positions['A'][:tile_h],
+    black_box = {
+      w: letter_positions.values.first[:tile_w],
+      h: letter_positions.values.first[:tile_h],
       path: :pixel
     }
-    @letter_positions = Hash.new(black_box_for_unknown_letter)
+    @letter_positions = Hash.new(unknown_letter_sprite || black_box)
     @letter_positions.merge!(letter_positions)
   end
 
