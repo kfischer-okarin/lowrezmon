@@ -1,5 +1,6 @@
 require 'lib/animations.rb'
 require 'lib/spritesheet_font.rb'
+require 'app/font.rb'
 require 'app/scenes/gameplay.rb'
 
 LOWREZ_ZOOM = 11
