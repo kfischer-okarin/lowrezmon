@@ -20,7 +20,7 @@ class SpritesheetFont
     text.each_char do |char|
       letter_position = @letter_positions[char]
       letter_sprite = {
-        x: x, y: y, w: letter_position[:tile_w],  h: letter_position[:tile_h],
+        x: x, y: y, w: letter_position[:tile_w], h: letter_position[:tile_h],
         path: @path,
         r: 0, g: 0, b: 0
       }.sprite!(letter_position).merge!(values)
@@ -28,5 +28,32 @@ class SpritesheetFont
       x += letter_sprite[:w] + 1
     end
     result
+  end
+
+  def split_into_lines(text, line_w:)
+    result = []
+    current_line = ''
+    current_w = 0
+    space_w = @letter_positions[' '][:tile_w] + 1
+    text.split(' ').each do |word|
+      word_w = string_w(word)
+      if current_line.empty?
+        current_line = word
+        current_w = word_w
+      elsif current_w + space_w + word_w <= line_w
+        current_line += ' ' + word
+        current_w += space_w + word_w
+      else
+        result << current_line
+        current_line = word
+        current_w = word_w
+      end
+    end
+    result << current_line unless current_line.empty?
+    result
+  end
+
+  def string_w(string)
+    string.chars.map { |char| @letter_positions[char][:tile_w] }.sum + string.length - 1
   end
 end
