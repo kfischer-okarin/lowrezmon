@@ -34,7 +34,7 @@ class SpritesheetFont
     result = []
     current_line = ''
     current_w = 0
-    space_w = @letter_positions[' '][:tile_w] + 1
+    space_w = @letter_positions[' '][:tile_w] + 2
     text.split(' ').each do |word|
       word_w = string_w(word)
       if current_line.empty?
