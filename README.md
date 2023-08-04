@@ -1,4 +1,8 @@
-# My Game
+# Lowrezmon (Emojimon)
+
+## Debug Controls (only in Dev Mode)
+- `9` - Toggle Debug Screen
+- `0` - Take screenshot
 
 ## How to checkout the game
 1. Extract the DragonRuby version you want to use somewhere

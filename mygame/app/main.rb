@@ -3,6 +3,7 @@ require 'lib/cutscene.rb'
 require 'lib/spritesheet_font.rb'
 require 'app/font.rb'
 require 'app/scenes/battle.rb'
+require 'app/scenes/debug_screen.rb'
 
 LOWREZ_ZOOM = 11
 LOWREZ_RENDER_SIZE = 64 * LOWREZ_ZOOM
@@ -15,6 +16,7 @@ def tick(args)
   setup(args) if args.tick_count.zero?
   update(args)
   render(args)
+  $scene = $next_scene if $next_scene
 end
 
 def setup(_args)
@@ -28,6 +30,10 @@ def update(args)
     y: mouse.y
   )
   $scene.update(args)
+  return if $gtk.production?
+
+  handle_screenshot(args)
+  handle_toggle_debug_screen(args)
 end
 
 def render(args)
@@ -47,7 +53,6 @@ def render(args)
   return if $gtk.production?
 
   render_fps(args)
-  handle_screenshot(args)
 end
 
 def to_lowrez_coordinates(point)
@@ -73,6 +78,18 @@ def handle_screenshot(args)
     # current timestamp
     path: 'screenshots/screenshot_%04d%02d%02d%02d%02d%02d.png' % [time.year, time.month, time.day, time.hour, time.min, time.sec]
   }
+end
+
+def handle_toggle_debug_screen(args)
+  return unless args.inputs.keyboard.key_down.nine
+
+  if $original_scene
+    $next_scene = $original_scene
+    $original_scene = nil
+  else
+    $original_scene = $scene
+    $next_scene = Scenes::DebugScreen.new
+  end
 end
 
 def build_label(values)
