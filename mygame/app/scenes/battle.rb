@@ -1,5 +1,5 @@
 module Scenes
-  class Gameplay
+  class Battle
     def initialize
       @line0_letters = []
       @line1_letters = []

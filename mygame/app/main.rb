@@ -2,7 +2,7 @@ require 'lib/animations.rb'
 require 'lib/cutscene.rb'
 require 'lib/spritesheet_font.rb'
 require 'app/font.rb'
-require 'app/scenes/gameplay.rb'
+require 'app/scenes/battle.rb'
 
 LOWREZ_ZOOM = 11
 LOWREZ_RENDER_SIZE = 64 * LOWREZ_ZOOM
@@ -18,7 +18,7 @@ def tick(args)
 end
 
 def setup(_args)
-  $scene = Scenes::Gameplay.new
+  $scene = Scenes::Battle.new
 end
 
 def update(args)
