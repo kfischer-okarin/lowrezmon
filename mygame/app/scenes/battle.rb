@@ -11,6 +11,7 @@ module Scenes
       @cutscene = Cutscene.build_empty
       @state = :battle_start
       @font = build_pokemini_font
+      @waiting_for_advance_message_since = nil
     end
 
     def update(args)
@@ -20,10 +21,19 @@ module Scenes
         return
       end
 
+      if @waiting_for_advance_message_since
+        return unless args.inputs.keyboard.key_down.space
+
+        @waiting_for_advance_message_since = nil
+        @line0_letters.clear
+        @line1_letters.clear
+        @line_index = 0
+      end
+
       case @state
       when :battle_start
-        tick_after_message = queue_message('A wild angry emoji appears!')
-        queue_state_change(:battle, tick: tick_after_message)
+        queue_message("#{@opponent[:name]} wants to battle!")
+        @state = :opponent_sends_emojimon
       end
     end
 
@@ -45,6 +55,14 @@ module Scenes
       }.sprite!
       screen.primitives << @line0_letters
       screen.primitives << @line1_letters
+      if @waiting_for_advance_message_since
+        if (@tick_count - @waiting_for_advance_message_since) % 60 < 30
+          screen.primitives << {
+            x: 28, y: 0, w: 9, h: 3, path: 'sprites/message_wait_triangle.png',
+            r: 0, g: 0, b: 0
+          }.sprite!
+        end
+      end
     end
 
     private
@@ -54,7 +72,6 @@ module Scenes
     end
 
     def queue_message(message, tick: @tick_count + 1)
-      Cutscene.schedule_element @cutscene, tick: tick, type: :clear_message, duration: 1
       lines = @font.split_into_lines(message, line_w: 62)
       lines.each do |line|
         duration = line.size * 2
@@ -62,17 +79,13 @@ module Scenes
         @line_index = 1 - @line_index
         tick += duration
       end
+      Cutscene.schedule_element @cutscene, tick: tick, type: :wait_for_advance_message, duration: 1
+      tick += 1
       tick
     end
 
     def queue_state_change(new_state, tick: @tick_count + 1)
       Cutscene.schedule_element @cutscene, tick: tick, type: :state_change, duration: 1, new_state: new_state
-    end
-
-    def clear_message_tick(_args, _element)
-      @line0_letters.clear
-      @line1_letters.clear
-      @line_index = 0
     end
 
     def message_tick(_args, message_element)
@@ -90,6 +103,10 @@ module Scenes
 
     def state_change_tick(_args, state_change_element)
       @state = state_change_element[:new_state]
+    end
+
+    def wait_for_advance_message_tick(_args, _element)
+      @waiting_for_advance_message_since = @tick_count
     end
   end
 end

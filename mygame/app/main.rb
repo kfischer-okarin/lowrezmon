@@ -24,11 +24,13 @@ end
 def setup(_args)
   $scene = Scenes::Battle.new(
     player: {
+      name: 'GREEN',
       emojimons: [
         { species: :wink, hp: 26, max_hp: 26 }
       ]
     },
     opponent: {
+      name: 'VIOLA',
       emojimons: [
         { species: :angry, hp: 26, max_hp: 26 }
       ]
