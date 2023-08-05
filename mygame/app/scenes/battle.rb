@@ -44,7 +44,16 @@ module Scenes
       }.sprite!
       screen.primitives << @opponent_emojimon[:sprite].to_sprite(x: 40, y: 40)
       screen.primitives << @player_emojimon[:back_sprite].to_sprite(x: 4, y: 19)
-      # window
+      render_window(screen)
+    end
+
+    private
+
+    def build_emojimon(emojimon)
+      emojimon.merge(SPECIES[emojimon[:species]])
+    end
+
+    def render_window(screen)
       screen.primitives << {
         x: 0, y: 18, w: 64, h: 1, path: :pixel,
         r: 0, g: 0, b: 0
@@ -55,20 +64,14 @@ module Scenes
       }.sprite!
       screen.primitives << @line0_letters
       screen.primitives << @line1_letters
-      if @waiting_for_advance_message_since
-        if (@tick_count - @waiting_for_advance_message_since) % 60 < 30
-          screen.primitives << {
-            x: 28, y: 0, w: 9, h: 3, path: 'sprites/message_wait_triangle.png',
-            r: 0, g: 0, b: 0
-          }.sprite!
-        end
-      end
-    end
 
-    private
+      return unless @waiting_for_advance_message_since
+      return unless (@tick_count - @waiting_for_advance_message_since) % 60 < 30
 
-    def build_emojimon(emojimon)
-      emojimon.merge(SPECIES[emojimon[:species]])
+      screen.primitives << {
+        x: 28, y: 0, w: 9, h: 3, path: 'sprites/message_wait_triangle.png',
+        r: 0, g: 0, b: 0
+      }.sprite!
     end
 
     def queue_message(message, tick: @tick_count + 1)
