@@ -40,7 +40,7 @@ module Scenes
     def render(screen, state)
       screen.primitives << {
         x: 0, y: 0, w: 64, h: 64, path: :pixel,
-        r: 253, g: 253, b: 230
+        r: 0xF0, g: 0xD0, b: 0xB0
       }.sprite!
       screen.primitives << @opponent_emojimon[:sprite].to_sprite(x: 40, y: 40)
       screen.primitives << @player_emojimon[:back_sprite].to_sprite(x: 4, y: 19)
@@ -60,7 +60,7 @@ module Scenes
       }.sprite!
       screen.primitives << {
         x: 1, y: 1, w: 62, h: 17, path: :pixel,
-        r: 255, g: 255, b: 255
+        r: 0xFC, g: 0xFC, b: 0xFC
       }.sprite!
       screen.primitives << @line0_letters
       screen.primitives << @line1_letters
