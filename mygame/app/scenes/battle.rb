@@ -59,7 +59,7 @@ module Scenes
         r: 0, g: 0, b: 0
       }.sprite!
       screen.primitives << {
-        x: 1, y: 1, w: 62, h: 17, path: :pixel,
+        x: 0, y: 0, w: 64, h: 18, path: :pixel,
         r: 0xFC, g: 0xFC, b: 0xFC
       }.sprite!
       screen.primitives << @line0_letters
