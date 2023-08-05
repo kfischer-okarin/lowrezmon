@@ -2,6 +2,7 @@ require 'lib/animations.rb'
 require 'lib/cutscene.rb'
 require 'lib/spritesheet_font.rb'
 require 'app/font.rb'
+require 'app/type.rb'
 require 'app/scenes/battle.rb'
 require 'app/scenes/debug_screen.rb'
 
