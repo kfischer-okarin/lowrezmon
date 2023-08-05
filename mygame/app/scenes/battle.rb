@@ -28,7 +28,6 @@ module Scenes
     end
 
     def render(screen, state)
-      @font = build_pokemini_font
       screen.primitives << {
         x: 0, y: 0, w: 64, h: 64, path: :pixel,
         r: 253, g: 253, b: 230
