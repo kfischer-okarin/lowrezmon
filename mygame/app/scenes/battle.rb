@@ -1,6 +1,10 @@
 module Scenes
   class Battle
-    def initialize
+    def initialize(player:, opponent:)
+      @player = player
+      @opponent = opponent
+      @player_emojimon = build_emojimon @player[:emojimons].first
+      @opponent_emojimon = build_emojimon @opponent[:emojimons].first
       @line0_letters = []
       @line1_letters = []
       @line_index = 0
@@ -29,14 +33,8 @@ module Scenes
         x: 0, y: 0, w: 64, h: 64, path: :pixel,
         r: 253, g: 253, b: 230
       }.sprite!
-      screen.primitives << {
-        x: 40, y: 40, w: 16, h: 16, path: 'sprites/emojis.png',
-        source_x: 0, source_y: 0, source_w: 16, source_h: 16
-      }.sprite!
-      screen.primitives << {
-        x: 4, y: 19, w: 23, h: 18, path: 'sprites/blank_emojis.png',
-        source_x: 0, source_y: 4, source_w: 16, source_h: 12
-      }.sprite!
+      screen.primitives << @opponent_emojimon[:sprite].to_sprite(x: 40, y: 40)
+      screen.primitives << @player_emojimon[:back_sprite].to_sprite(x: 4, y: 19)
       # window
       screen.primitives << {
         x: 0, y: 18, w: 64, h: 1, path: :pixel,
@@ -51,6 +49,10 @@ module Scenes
     end
 
     private
+
+    def build_emojimon(emojimon)
+      emojimon.merge(SPECIES[emojimon[:species]])
+    end
 
     def queue_message(message, tick: @tick_count + 1)
       Cutscene.schedule_element @cutscene, tick: tick, type: :clear_message, duration: 1

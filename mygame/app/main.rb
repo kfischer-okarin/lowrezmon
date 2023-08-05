@@ -2,6 +2,7 @@ require 'lib/animations.rb'
 require 'lib/cutscene.rb'
 require 'lib/spritesheet_font.rb'
 require 'app/font.rb'
+require 'app/species.rb'
 require 'app/type.rb'
 require 'app/scenes/battle.rb'
 require 'app/scenes/debug_screen.rb'
@@ -21,7 +22,18 @@ def tick(args)
 end
 
 def setup(_args)
-  $scene = Scenes::Battle.new
+  $scene = Scenes::Battle.new(
+    player: {
+      emojimons: [
+        { species: :wink, hp: 26, max_hp: 26 }
+      ]
+    },
+    opponent: {
+      emojimons: [
+        { species: :angry, hp: 26, max_hp: 26 }
+      ]
+    }
+  )
 end
 
 def update(args)
