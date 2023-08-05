@@ -7,8 +7,7 @@ require 'app/type.rb'
 require 'app/scenes/battle.rb'
 require 'app/scenes/debug_screen.rb'
 
-
-LOWREZ_ZOOM = 10
+LOWREZ_ZOOM = 11
 LOWREZ_RENDER_SIZE = 64 * LOWREZ_ZOOM
 LOWREZ_X_OFFSET = (1280 - LOWREZ_RENDER_SIZE).idiv(2)
 LOWREZ_Y_OFFSET = (720 - LOWREZ_RENDER_SIZE).idiv(2)
