@@ -1,32 +1,40 @@
 module Type
+  DAMAGE_MULTIPLIERS = {
+    sassy: {
+      sassy: 1,
+      silly: 0.5,
+      sexy: 2,
+      salty: 1
+    },
+    silly: {
+      sassy: 2,
+      silly: 1,
+      sexy: 0.5,
+      salty: 1
+    },
+    sexy: {
+      sassy: 0.5,
+      silly: 2,
+      sexy: 1,
+      salty: 1
+    },
+    salty: {
+      sassy: 1,
+      silly: 1,
+      sexy: 1,
+      salty: 2
+    }
+  }
   class << self
-    EFFECTIVENESS = {
-      sassy: {
-        sexy: :super_effective,
-        silly: :not_very_effective
-      }.freeze,
-      silly: {
-        sassy: :super_effective,
-        sexy: :not_very_effective
-      }.freeze,
-      sexy: {
-        silly: :super_effective,
-        sassy: :not_very_effective
-      }.freeze,
-      salty: {
-        salty: :super_effective
-      }.freeze
-    }.freeze
-
     def all
-      EFFECTIVENESS.keys
+      DAMAGE_MULTIPLIERS.keys
     end
 
-    def effectiveness_of(attacking_type, against_type:)
+    def damage_multiplier(attacking_type, against_type:)
       raise "Unknown type: #{attacking_type}" unless all.include? attacking_type
       raise "Unknown type: #{against_type}" unless all.include? against
 
-      EFFECTIVENESS[attacking_type][against_type] || :normal
+      DAMAGE_MULTIPLIERS[attacking_type][against_type] || 1
     end
   end
 end
