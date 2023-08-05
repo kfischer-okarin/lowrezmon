@@ -2,6 +2,7 @@
 
 ## Debug Controls (only in Dev Mode)
 - `9` - Toggle Debug Screen
+  - Rotate through sub-screens with `TAB`
 - `0` - Take screenshot
 
 ## How to checkout the game
