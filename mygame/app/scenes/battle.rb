@@ -7,6 +7,13 @@ module Scenes
       @player_emojimon_sprite = nil
       @opponent_emojimon = nil
       @opponent_emojimon_sprite = nil
+      @opponent_name_letters = []
+      @opponent_hp_background = nil
+      @opponent_hp_bar = nil
+      @player_name_letters = []
+      @player_hp_background = nil
+      @player_hp_bar = nil
+      @player_hp_letters = []
       @line0_letters = []
       @line1_letters = []
       @line_index = 0
@@ -14,6 +21,7 @@ module Scenes
       @state = :battle_start
       @queued_states = []
       @font = build_pokemini_font
+      @fatnumbers_font = build_pokemini_fatnumbers_font
       @waiting_for_advance_message_since = nil
     end
 
@@ -35,7 +43,7 @@ module Scenes
 
       case @state
       when :battle_start
-        queue_message("#{@opponent[:name]} wants to battle!", tick: @tick_count + 60)
+        queue_message("#{@opponent[:name]} wants to battle!")
         @state = :opponent_sends_emojimon
         @queued_states = [:player_sends_emojimon, :player_chooses_action]
       when :opponent_sends_emojimon
@@ -58,7 +66,14 @@ module Scenes
         r: 0xF0, g: 0xD0, b: 0xB0
       }.sprite!
       screen.primitives << @opponent_emojimon_sprite
+      screen.primitives << @opponent_name_letters
+      screen.primitives << @opponent_hp_background
+      screen.primitives << @opponent_hp_bar
       screen.primitives << @player_emojimon_sprite
+      screen.primitives << @player_name_letters
+      screen.primitives << @player_hp_background
+      screen.primitives << @player_hp_bar
+      screen.primitives << @player_hp_letters
       render_window(screen)
     end
 
@@ -149,7 +164,15 @@ module Scenes
         )
       else
         Animations.perform_tick element[:grow_animation]
+        refresh_opponent_stats if element[:elapsed_ticks] == 59
       end
+    end
+
+    def refresh_opponent_stats
+      @opponent_name_letters = @font.build_label(text: @opponent_emojimon[:name], x: 1, y: 57)
+      @opponent_hp_background = { x: 1, y: 52, w: 27, h: 3, path: :pixel, r: 0, g: 0, b: 0 }.border!
+      bar_w = @opponent_emojimon[:hp].fdiv(@opponent_emojimon[:max_hp]) * 25
+      @opponent_hp_bar = { x: 2, y: 53, w: bar_w, h: 1, path: :pixel, r: 0xb8, g: 0xf8, b: 0x18 }
     end
 
     def player_emojimon_appears_tick(_args, element)
@@ -166,7 +189,16 @@ module Scenes
         )
       else
         Animations.perform_tick element[:grow_animation]
+        refresh_player_stats if element[:elapsed_ticks] == 59
       end
+    end
+
+    def refresh_player_stats
+      @player_name_letters = @font.build_label(text: @player_emojimon[:name], x: 34, y: 32)
+      @player_hp_background = { x: 34, y: 27, w: 27, h: 3, path: :pixel, r: 0, g: 0, b: 0 }.border!
+      bar_w = @player_emojimon[:hp].fdiv(@player_emojimon[:max_hp]) * 25
+      @player_hp_bar = { x: 35, y: 28, w: bar_w, h: 1, path: :pixel, r: 0xb8, g: 0xf8, b: 0x18 }
+      @player_hp_letters = @fatnumbers_font.build_label(text: "#{@player_emojimon[:hp]}/#{@player_emojimon[:max_hp]}", x: 34, y: 20)
     end
   end
 end
