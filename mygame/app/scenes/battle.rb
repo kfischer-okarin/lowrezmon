@@ -132,14 +132,14 @@ module Scenes
     end
 
     def queue_opponent_emojimon_appearance(tick: @tick_count + 1)
-      Cutscene.schedule_element @battle.cutscene, tick: tick, type: :opponent_emojimon_appears, duration: 60
+      Cutscene.schedule_element @battle.cutscene, tick: tick, type: :opponent_emojimon_appears, duration: 30
     end
 
     def queue_player_emojimon_appearance(tick: @tick_count + 1)
-      Cutscene.schedule_element @battle.cutscene, tick: tick, type: :player_emojimon_appears, duration: 60
+      Cutscene.schedule_element @battle.cutscene, tick: tick, type: :player_emojimon_appears, duration: 30
     end
 
-    def message_tick(args, message_element)
+    def message_tick(_args, message_element)
       if message_element[:line_index].zero?
         y = 11
         letters_array = @battle.window.line0_letters
@@ -167,11 +167,11 @@ module Scenes
         element[:grow_animation] = Animations.lerp(
           opponent.sprite,
           to: target_values,
-          duration: 60
+          duration: element[:duration]
         )
       else
         Animations.perform_tick element[:grow_animation]
-        refresh_opponent_stats if element[:elapsed_ticks] == 59
+        refresh_opponent_stats if element[:elapsed_ticks] == element[:duration] - 1
       end
     end
 
@@ -195,11 +195,11 @@ module Scenes
         element[:grow_animation] = Animations.lerp(
           player.sprite,
           to: target_values,
-          duration: 60
+          duration: element[:duration]
         )
       else
         Animations.perform_tick element[:grow_animation]
-        refresh_player_stats if element[:elapsed_ticks] == 59
+        refresh_player_stats if element[:elapsed_ticks] == element[:duration] - 1
       end
     end
 
