@@ -48,14 +48,8 @@ module Scenes
         return
       end
 
-      message_window = @battle.message_window
-      if message_window.active
-        if message_window.waiting_for_advance_message_since && key_down.space
-          message_window.active = false
-          message_window.waiting_for_advance_message_since = nil
-          message_window.line0_letters.clear
-          message_window.line1_letters.clear
-        end
+      if @battle.message_window.active
+        update_message_window(args)
         return
       end
 
@@ -115,6 +109,22 @@ module Scenes
     end
 
     private
+
+    def update_message_window(args)
+      message_window = @battle.message_window
+      return unless message_window.waiting_for_advance_message_since
+
+      if confirm?(args.inputs)
+        message_window.active = false
+        message_window.waiting_for_advance_message_since = nil
+        message_window.line0_letters.clear
+        message_window.line1_letters.clear
+      end
+    end
+
+    def confirm?(inputs)
+      inputs.keyboard.key_down.space
+    end
 
     def build_emojimon(emojimon)
       result = emojimon.merge(SPECIES[emojimon[:species]])
