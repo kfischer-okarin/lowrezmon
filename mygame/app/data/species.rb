@@ -70,7 +70,8 @@ SPECIES = {
       tile_y: 0
     ),
     back_sprite: YELLOW_BACK_SPRITE,
-    type: :sassy
+    type: :sassy,
+    attacks: [:wink]
   },
   upside_down: {
     name: "Upside Down",

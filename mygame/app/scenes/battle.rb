@@ -22,11 +22,14 @@ module Scenes
       opponent.stats_display.hp_background = nil
       opponent.stats_display.hp_bar = nil
 
-      window = battle.window = args.state.new_entity(:window)
-      window.active = false
-      window.line0_letters = []
-      window.line1_letters = []
-      window.waiting_for_advance_message_since = nil
+      message_window = battle.message_window = args.state.new_entity(:message_window)
+      message_window.active = false
+      message_window.line0_letters = []
+      message_window.line1_letters = []
+      message_window.waiting_for_advance_message_since = nil
+
+      action_selection = battle.action_selection = args.state.new_entity(:action_selection)
+      action_selection.index = 0
 
       battle.cutscene = Cutscene.build_empty
       battle.state = :battle_start
@@ -42,34 +45,43 @@ module Scenes
         return
       end
 
-      window = @battle.window
-      if window.active
-        return unless window.waiting_for_advance_message_since && key_down.space
+      message_window = @battle.message_window
+      if message_window.active
+        return unless message_window.waiting_for_advance_message_since && key_down.space
 
-        window.active = false
-        window.waiting_for_advance_message_since = nil
-        window.line0_letters.clear
-        window.line1_letters.clear
+        message_window.active = false
+        message_window.waiting_for_advance_message_since = nil
+        message_window.line0_letters.clear
+        message_window.line1_letters.clear
       end
 
       player = @battle.player
       opponent = @battle.opponent
       case @battle.state
       when :battle_start
-        queue_message("#{opponent.trainer[:name]} wants to battle!")
-        @battle.state = :opponent_sends_emojimon
+        after_message_tick = queue_message("#{opponent.trainer[:name]} wants to battle!")
+        queue_state_change :opponent_sends_emojimon, tick: after_message_tick
         @battle.queued_states = [:player_sends_emojimon, :player_chooses_action]
       when :opponent_sends_emojimon
         opponent.emojimon = build_emojimon opponent.trainer[:emojimons].first
         queue_message("#{opponent.trainer[:name]} sends #{opponent.emojimon[:name]}!")
-        queue_opponent_emojimon_appearance
-        @battle.state = @battle.queued_states.shift
+        after_appearance_tick = queue_opponent_emojimon_appearance
+        queue_state_change @battle.queued_states.shift, tick: after_appearance_tick
       when :player_sends_emojimon
         player.emojimon = build_emojimon player.trainer[:emojimons].first
+        prepare_action_selection
         queue_message("Go, #{player.emojimon[:name]}!")
-        queue_player_emojimon_appearance
-        @battle.state = @battle.queued_states.shift
+        after_appearance_tick = queue_player_emojimon_appearance
+        queue_state_change @battle.queued_states.shift, tick: after_appearance_tick
       when :player_chooses_action
+        action_selection = @battle.action_selection
+        if key_down.left
+          action_selection.index = (action_selection.index - 1) % action_selection.options.size
+        elsif key_down.right
+          action_selection.index = (action_selection.index + 1) % action_selection.options.size
+        elsif key_down.space
+          # TODO
+        end
       end
     end
 
@@ -95,11 +107,31 @@ module Scenes
     private
 
     def build_emojimon(emojimon)
-      emojimon.merge(SPECIES[emojimon[:species]])
+      result = emojimon.merge(SPECIES[emojimon[:species]])
+      result[:attacks] ||= []
+      result[:attacks] = result[:attacks].map { |attack| ATTACKS[attack].merge(id: attack) }
+      result
+    end
+
+    def prepare_action_selection
+      action_selection = @battle.action_selection
+      action_selection.index = 0
+      action_selection.options = []
+      @battle.player.emojimon[:attacks].each_with_index do |attack, index|
+        action_selection.options << {
+          action: { type: :attack, attack: attack[:id] },
+          sprite: attack[:sprite],
+          rect: { x: 2 + (index * 16), y: 2, w: 14, h: 14 }
+        }
+      end
+      action_selection.options << {
+        action: { type: :exchange },
+        sprite: { path: 'sprites/icons/exchange.png' },
+        rect: { x: 48, y: 2, w: 14, h: 14 }
+      }
     end
 
     def render_window(screen)
-      window = @battle.window
       screen.primitives << {
         x: 0, y: 18, w: 64, h: 1, path: :pixel,
         r: 0, g: 0, b: 0
@@ -108,16 +140,36 @@ module Scenes
         x: 0, y: 0, w: 64, h: 18, path: :pixel,
         r: 0xFC, g: 0xFC, b: 0xFC
       }.sprite!
-      screen.primitives << window.line0_letters
-      screen.primitives << window.line1_letters
 
-      return unless window.waiting_for_advance_message_since
-      return unless (@tick_count - window.waiting_for_advance_message_since) % 60 < 30
+      if @battle.message_window.active
+        render_message_window(screen)
+      elsif @battle.state == :player_chooses_action
+        render_action_selection(screen)
+      end
+    end
+
+    def render_message_window(screen)
+      message_window = @battle.message_window
+      screen.primitives << message_window.line0_letters
+      screen.primitives << message_window.line1_letters
+
+      return unless message_window.waiting_for_advance_message_since
+      return unless (@tick_count - message_window.waiting_for_advance_message_since) % 60 < 30
 
       screen.primitives << {
         x: 28, y: 0, w: 9, h: 3, path: 'sprites/message_wait_triangle.png',
         r: 0, g: 0, b: 0
       }.sprite!
+    end
+
+    def render_action_selection(screen)
+      action_selection = @battle.action_selection
+
+      action_selection.options.each_with_index do |option, index|
+        bg_color = action_selection.index == index ? { r: 0x61, g: 0xa2, b: 0xff } : { r: 0xb2, g: 0xb2, b: 0xb2 }
+        screen.primitives << option[:rect].merge(path: 'sprites/icons/background.png').merge!(bg_color)
+        screen.primitives << option[:rect].merge(option[:sprite])
+      end
     end
 
     def queue_message(message, tick: @tick_count + 1)
@@ -134,31 +186,43 @@ module Scenes
       tick
     end
 
+    def queue_state_change(state, tick: @tick_count + 1)
+      Cutscene.schedule_element @battle.cutscene, tick: tick, type: :state_change, state: state, duration: 1
+    end
+
     def queue_opponent_emojimon_appearance(tick: @tick_count + 1)
-      Cutscene.schedule_element @battle.cutscene, tick: tick, type: :opponent_emojimon_appears, duration: 30
+      duration = 30
+      Cutscene.schedule_element @battle.cutscene, tick: tick, type: :opponent_emojimon_appears, duration: duration
+      tick + duration
     end
 
     def queue_player_emojimon_appearance(tick: @tick_count + 1)
-      Cutscene.schedule_element @battle.cutscene, tick: tick, type: :player_emojimon_appears, duration: 30
+      duration = 30
+      Cutscene.schedule_element @battle.cutscene, tick: tick, type: :player_emojimon_appears, duration: duration
+      tick + duration
     end
 
     def message_tick(_args, message_element)
-      window = @battle.window
-      window.active = true
+      message_window = @battle.message_window
+      message_window.active = true
       if message_element[:line_index].zero?
         y = 11
-        letters_array = window.line0_letters
+        letters_array = message_window.line0_letters
       else
         y = 3
-        letters_array = window.line1_letters
+        letters_array = message_window.line1_letters
       end
       letters_array.clear
       char_index = message_element[:elapsed_ticks].idiv 2
       letters_array.concat @font.build_label(text: message_element[:line][0..char_index], x: 1, y: y)
     end
 
+    def state_change_tick(_args, state_change_element)
+      @battle.state = state_change_element[:state]
+    end
+
     def wait_for_advance_message_tick(_args, _element)
-      @battle.window.waiting_for_advance_message_since = @tick_count
+      @battle.message_window.waiting_for_advance_message_since = @tick_count
     end
 
     def opponent_emojimon_appears_tick(_args, element)
