@@ -21,15 +21,16 @@ def tick(args)
   $scene = $next_scene if $next_scene
 end
 
-def setup(_args)
+def setup(args)
   $scene = Scenes::Battle.new(
-    player: {
+    args,
+    player_trainer: {
       name: 'GREEN',
       emojimons: [
         { species: :winking, hp: 26, max_hp: 26 }
       ]
     },
-    opponent: {
+    opponent_trainer: {
       name: 'VIOLA',
       emojimons: [
         { species: :angry, hp: 26, max_hp: 26 }
