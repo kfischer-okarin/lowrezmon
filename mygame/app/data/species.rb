@@ -548,7 +548,8 @@ SPECIES = {
       tile_y: 112
     ),
     back_sprite: RED_BACK_SPRITE,
-    type: :salty
+    type: :salty,
+    attacks: [:glare]
   },
   angrier: {
     name: "Angrier",

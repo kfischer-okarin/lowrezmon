@@ -89,6 +89,9 @@ module Scenes
           @battle.turn_order = determine_turn_order
           queue_turn_resolution_for @battle.turn_order.shift
         end
+      when :other_turn
+        after_turn_tick = queue_turn_resolution_for @battle.turn_order.shift
+        queue_state_change :player_chooses_action, tick: after_turn_tick
       end
     end
 
@@ -139,7 +142,10 @@ module Scenes
     end
 
     def choose_opponent_action
-      @battle.opponent.emojimon[:attacks].sample
+      {
+        type: :attack,
+        attack: @battle.opponent.emojimon[:attacks].sample[:id]
+      }
     end
 
     def determine_turn_order
@@ -226,9 +232,10 @@ module Scenes
       player_emojimon = player.emojimon
       opponent = @battle.opponent
       opponent_emojimon = @battle.opponent.emojimon
+      after_finished_tick = nil
       case combatant
       when :player
-        action = @battle.player.selected_action
+        action = player.selected_action
         case action[:type]
         when :attack
           attack = ATTACKS[action[:attack]]
@@ -236,22 +243,47 @@ module Scenes
           multiplier = Type.damage_multiplier(attack[:type], against_type: opponent_emojimon[:type])
           damage = (damage * multiplier).floor
           queue_message("#{player_emojimon[:name]} uses #{attack[:name]}!", tick: tick)
-          queue_player_attack_animation(opponent.sprite, tick: tick + 20)
-          after_hp_bar_animation_tick = queue_hp_bar_animation(opponent, -damage, tick: tick + 20)
-          queue_turn_resolution_for @battle.turn_order.shift, tick: after_hp_bar_animation_tick if @battle.turn_order.any?
+          queue_player_attack_animation(tick: tick + 20)
+          after_finished_tick = queue_hp_bar_animation(opponent, -damage, tick: tick + 20)
           opponent_emojimon[:hp] -= damage
+
+          @battle.state = :other_turn if @battle.turn_order.any?
         when :exchange
           @battle.state = :player_chooses_action # TODO: Implemennt
         end
+        player.selected_action = nil
       when :opponent
+        action = opponent.selected_action
+        after_finished_tick = nil
+        case action[:type]
+        when :attack
+          attack = ATTACKS[action[:attack]]
+          damage = calc_damage(opponent_emojimon, player_emojimon, attack)
+          multiplier = Type.damage_multiplier(attack[:type], against_type: player_emojimon[:type])
+          damage = (damage * multiplier).floor
+          queue_message("#{opponent_emojimon[:name]} uses #{attack[:name]}!", tick: tick)
+          queue_opponent_attack_animation(tick: tick + 20)
+          after_finished_tick = queue_hp_bar_animation(player, -damage, tick: tick + 20, with_hp_numbers: true)
+          player_emojimon[:hp] -= damage
+
+          @battle.state = :other_turn if @battle.turn_order.any?
+        when :exchange
+          @battle.state = :player_chooses_action # TODO: Implemennt
+        end
+        opponent.selected_action = nil
       end
+      after_finished_tick
     end
 
-    def queue_player_attack_animation(opponent_sprite, tick: @tick_count + 1)
-      Cutscene.schedule_element @battle.cutscene, tick: tick, type: :shake_sprite, target: opponent_sprite, duration: 20
+    def queue_player_attack_animation(tick: @tick_count + 1)
+      Cutscene.schedule_element @battle.cutscene, tick: tick, type: :shake, target: @battle.opponent.sprite, duration: 20
     end
 
-    def queue_hp_bar_animation(combatant, delta, tick: @tick_count + 1)
+    def queue_opponent_attack_animation(tick: @tick_count + 1)
+      Cutscene.schedule_element @battle.cutscene, tick: tick, type: :shake, target: @battle.player.sprite, duration: 20
+    end
+
+    def queue_hp_bar_animation(combatant, delta, tick: @tick_count + 1, with_hp_numbers: false)
       target_hp = (combatant.emojimon[:hp] + delta).clamp(0, combatant.emojimon[:max_hp])
       hp_bar = combatant.stats_display.hp_bar
       target_w = ((target_hp / combatant.emojimon[:max_hp]) * 25).floor
@@ -262,6 +294,19 @@ module Scenes
                                 hp_bar: hp_bar,
                                 target_w: target_w,
                                 duration: duration
+
+      if with_hp_numbers
+        hp_letters = combatant.stats_display.hp_letters
+        Cutscene.schedule_element @battle.cutscene,
+                                  tick: tick,
+                                  type: :animate_hp_letters,
+                                  hp_bar: hp_letters,
+                                  current_hp: combatant.emojimon[:hp],
+                                  max_hp: combatant.emojimon[:max_hp],
+                                  target_hp: target_hp,
+                                  duration: duration
+      end
+
 
       tick + duration
     end
@@ -349,7 +394,7 @@ module Scenes
     MAX_SHAKE = 10
     SHAKE_DECAY = 0.01
 
-    def shake_sprite_tick(_args, element)
+    def shake_tick(_args, element)
       target = element[:target]
       if element[:elapsed_ticks].zero?
         element[:trauma] = 0.2
@@ -380,6 +425,15 @@ module Scenes
         duration: element[:duration]
       )
       Animations.perform_tick element[:animation]
+    end
+
+    def animate_hp_letters_tick(_args, element)
+      hp_letters = element[:hp_bar]
+      element[:x] ||= hp_letters.first[:x]
+      element[:y] ||= hp_letters.first[:y]
+      animated_hp = element[:elapsed_ticks].remap(0, element[:duration], element[:current_hp], element[:target_hp]).floor
+      hp_letters.clear
+      hp_letters.concat @fatnumbers_font.build_label(text: "#{animated_hp}/#{element[:max_hp]}", x: element[:x], y: element[:y])
     end
   end
 end
