@@ -32,7 +32,7 @@ module Type
 
     def damage_multiplier(attacking_type, against_type:)
       raise "Unknown type: #{attacking_type}" unless all.include? attacking_type
-      raise "Unknown type: #{against_type}" unless all.include? against
+      raise "Unknown type: #{against_type}" unless all.include? against_type
 
       DAMAGE_MULTIPLIERS[attacking_type][against_type] || 1
     end
