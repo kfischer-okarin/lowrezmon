@@ -160,9 +160,9 @@ module Scenes
       opponent = @battle.opponent
       case element[:elapsed_ticks]
       when 0
-        target_values = opponent.emojimon[:sprite].slice(:h, :tile_h).merge(r: 255, g: 255, b: 255)
+        target_values = opponent.emojimon[:sprite].slice(:h).merge(r: 255, g: 255, b: 255)
         opponent.sprite = opponent.emojimon[:sprite].to_sprite(
-          x: 40, y: 40, h: 0, tile_h: 0, r: 0, g: 0, b: 0
+          x: 40, y: 40, h: 0, r: 0, g: 0, b: 0
         )
         element[:grow_animation] = Animations.lerp(
           opponent.sprite,
@@ -188,9 +188,9 @@ module Scenes
       player = @battle.player
       case element[:elapsed_ticks]
       when 0
-        target_values = player.emojimon[:back_sprite].slice(:h, :source_h).merge(r: 255, g: 255, b: 255)
+        target_values = player.emojimon[:back_sprite].slice(:h).merge(r: 255, g: 255, b: 255)
         player.sprite = player.emojimon[:back_sprite].to_sprite(
-          x: 4, y: 19, h: 0, source: 0, r: 0, g: 0, b: 0
+          x: 4, y: 17, h: 0, r: 0, g: 0, b: 0
         )
         element[:grow_animation] = Animations.lerp(
           player.sprite,

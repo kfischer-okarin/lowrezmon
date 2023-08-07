@@ -7,36 +7,32 @@ EMOJI_BASE_SPRITE = {
 }.freeze
 
 EMOJI_BACK_BASE_SPRITE = {
-  path: "sprites/blank_emojis.png",
-  source_w: 16,
-  source_h: 12,
-  w: 23,
-  h: 18
+  path: "sprites/emojis_backview.png",
+  source_y: 4,
+  source_w: 24,
+  source_h: 24,
+  w: 24,
+  h: 20
 }.freeze
 
 YELLOW_BACK_SPRITE = EMOJI_BACK_BASE_SPRITE.merge(
-  source_x: 0,
-  source_y: 4
+  source_x: 0
 ).freeze
 
 RED_BACK_SPRITE = EMOJI_BACK_BASE_SPRITE.merge(
-  source_x: 16,
-  source_y: 4
+  source_x: 24
 ).freeze
 
 GREEN_BACK_SPRITE = EMOJI_BACK_BASE_SPRITE.merge(
-  source_x: 32,
-  source_y: 4
+  source_x: 48
 ).freeze
 
 PURPLE_BACK_SPRITE = EMOJI_BACK_BASE_SPRITE.merge(
-  source_x: 48,
-  source_y: 4
+  source_x: 72
 ).freeze
 
 BLUE_BACK_SPRITE = EMOJI_BACK_BASE_SPRITE.merge(
-  source_x: 80,
-  source_y: 4
+  source_x: 96
 ).freeze
 
 SPECIES = {
