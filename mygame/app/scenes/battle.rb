@@ -13,6 +13,7 @@ module Scenes
       player.stats_display.hp_background = nil
       player.stats_display.hp_bar = nil
       player.stats_display.hp_letters = []
+      player.selected_action = nil
 
       opponent = battle.opponent = args.state.new_entity(:opponent)
       opponent.trainer = opponent_trainer
@@ -21,6 +22,7 @@ module Scenes
       opponent.stats_display.name_letters = []
       opponent.stats_display.hp_background = nil
       opponent.stats_display.hp_bar = nil
+      opponent.selected_action = nil
 
       message_window = battle.message_window = args.state.new_entity(:message_window)
       message_window.active = false
@@ -34,6 +36,7 @@ module Scenes
       battle.cutscene = Cutscene.build_empty
       battle.state = :battle_start
       battle.queued_states = []
+      battle.turn_order = nil
     end
 
     def update(args)
@@ -47,12 +50,13 @@ module Scenes
 
       message_window = @battle.message_window
       if message_window.active
-        return unless message_window.waiting_for_advance_message_since && key_down.space
-
-        message_window.active = false
-        message_window.waiting_for_advance_message_since = nil
-        message_window.line0_letters.clear
-        message_window.line1_letters.clear
+        if message_window.waiting_for_advance_message_since && key_down.space
+          message_window.active = false
+          message_window.waiting_for_advance_message_since = nil
+          message_window.line0_letters.clear
+          message_window.line1_letters.clear
+        end
+        return
       end
 
       player = @battle.player
@@ -80,7 +84,10 @@ module Scenes
         elsif key_down.right
           action_selection.index = (action_selection.index + 1) % action_selection.options.size
         elsif key_down.space
-          # TODO
+          player.selected_action = action_selection.options[action_selection.index][:action]
+          opponent.selected_action = choose_opponent_action
+          @battle.turn_order = determine_turn_order
+          queue_turn_resolution_for @battle.turn_order.shift
         end
       end
     end
@@ -129,6 +136,18 @@ module Scenes
         sprite: { path: 'sprites/icons/exchange.png' },
         rect: { x: 48, y: 2, w: 14, h: 14 }
       }
+    end
+
+    def choose_opponent_action
+      @battle.opponent.emojimon[:attacks].sample
+    end
+
+    def determine_turn_order
+      [:player, :opponent]
+    end
+
+    def calc_damage(attacker, defender, attack)
+      3 + rand(3)
     end
 
     def render_window(screen)
@@ -202,6 +221,51 @@ module Scenes
       tick + duration
     end
 
+    def queue_turn_resolution_for(combatant, tick: @tick_count + 1)
+      player = @battle.player
+      player_emojimon = player.emojimon
+      opponent = @battle.opponent
+      opponent_emojimon = @battle.opponent.emojimon
+      case combatant
+      when :player
+        action = @battle.player.selected_action
+        case action[:type]
+        when :attack
+          attack = ATTACKS[action[:attack]]
+          damage = calc_damage(player_emojimon, opponent_emojimon, attack)
+          multiplier = Type.damage_multiplier(attack[:type], against_type: opponent_emojimon[:type])
+          damage = (damage * multiplier).floor
+          queue_message("#{player_emojimon[:name]} uses #{attack[:name]}!", tick: tick)
+          queue_player_attack_animation(opponent.sprite, tick: tick + 20)
+          after_hp_bar_animation_tick = queue_hp_bar_animation(opponent, -damage, tick: tick + 20)
+          queue_turn_resolution_for @battle.turn_order.shift, tick: after_hp_bar_animation_tick if @battle.turn_order.any?
+          opponent_emojimon[:hp] -= damage
+        when :exchange
+          @battle.state = :player_chooses_action # TODO: Implemennt
+        end
+      when :opponent
+      end
+    end
+
+    def queue_player_attack_animation(opponent_sprite, tick: @tick_count + 1)
+      Cutscene.schedule_element @battle.cutscene, tick: tick, type: :shake_sprite, target: opponent_sprite, duration: 20
+    end
+
+    def queue_hp_bar_animation(combatant, delta, tick: @tick_count + 1)
+      target_hp = (combatant.emojimon[:hp] + delta).clamp(0, combatant.emojimon[:max_hp])
+      hp_bar = combatant.stats_display.hp_bar
+      target_w = ((target_hp / combatant.emojimon[:max_hp]) * 25).floor
+      duration = (hp_bar[:w].abs - target_w.abs) * 2
+      Cutscene.schedule_element @battle.cutscene,
+                                tick: tick,
+                                type: :animate_hp_bar,
+                                hp_bar: hp_bar,
+                                target_w: target_w,
+                                duration: duration
+
+      tick + duration
+    end
+
     def message_tick(_args, message_element)
       message_window = @battle.message_window
       message_window.active = true
@@ -249,7 +313,7 @@ module Scenes
       stats_display = @battle.opponent.stats_display
       stats_display.name_letters = @font.build_label(text: emojimon[:name], x: 1, y: 57)
       stats_display.hp_background = { x: 1, y: 52, w: 27, h: 3, path: :pixel, r: 0, g: 0, b: 0 }.border!
-      bar_w = emojimon[:hp].fdiv(emojimon[:max_hp]) * 25
+      bar_w = ((emojimon[:hp] / emojimon[:max_hp]) * 25).floor
       stats_display.hp_bar = { x: 2, y: 53, w: bar_w, h: 1, path: :pixel, r: 0xb8, g: 0xf8, b: 0x18 }
     end
 
@@ -277,9 +341,45 @@ module Scenes
       stats_display = @battle.player.stats_display
       stats_display.name_letters = @font.build_label(text: emojimon[:name], x: 34, y: 32)
       stats_display.hp_background = { x: 34, y: 27, w: 27, h: 3, path: :pixel, r: 0, g: 0, b: 0 }.border!
-      bar_w = emojimon[:hp].fdiv(emojimon[:max_hp]) * 25
+      bar_w = ((emojimon[:hp] / emojimon[:max_hp]) * 25).floor
       stats_display.hp_bar = { x: 35, y: 28, w: bar_w, h: 1, path: :pixel, r: 0xb8, g: 0xf8, b: 0x18 }
       stats_display.hp_letters = @fatnumbers_font.build_label(text: "#{emojimon[:hp]}/#{emojimon[:max_hp]}", x: 34, y: 20)
+    end
+
+    MAX_SHAKE = 10
+    SHAKE_DECAY = 0.01
+
+    def shake_sprite_tick(_args, element)
+      target = element[:target]
+      if element[:elapsed_ticks].zero?
+        element[:trauma] = 0.2
+        element[:original_x] = target.x
+        element[:original_y] = target.y
+      end
+
+      max_shake = (element[:trauma]**2) * MAX_SHAKE
+      shake_x = max_shake * ((rand * 2) - 1)
+      shake_y = max_shake * ((rand * 2) - 1)
+      shake_x = shake_x.abs.ceil * shake_x.sign
+      shake_y = shake_y.abs.ceil * shake_y.sign
+      target.x = element[:original_x] + shake_x
+      target.y = element[:original_y] + shake_y
+      element[:trauma] = [0, element[:trauma] - SHAKE_DECAY].max
+
+      if element[:elapsed_ticks] == element[:duration] - 1
+        target.x = element[:original_x]
+        target.y = element[:original_y]
+      end
+    end
+
+    def animate_hp_bar_tick(_args, element)
+      hp_bar = element[:hp_bar]
+      element[:animation] ||= Animations.lerp(
+        hp_bar,
+        to: { w: element[:target_w] },
+        duration: element[:duration]
+      )
+      Animations.perform_tick element[:animation]
     end
   end
 end
