@@ -23,6 +23,7 @@ module Scenes
       opponent.stats_display.hp_bar = nil
 
       window = battle.window = args.state.new_entity(:window)
+      window.active = false
       window.line0_letters = []
       window.line1_letters = []
       window.waiting_for_advance_message_since = nil
@@ -35,15 +36,17 @@ module Scenes
     def update(args)
       @battle = args.state.battle
       @tick_count = args.tick_count
+      key_down = args.inputs.keyboard.key_down
       unless Cutscene.finished?(@battle.cutscene)
         Cutscene.tick args, @battle.cutscene, handler: self
         return
       end
 
       window = @battle.window
-      if window.waiting_for_advance_message_since
-        return unless args.inputs.keyboard.key_down.space
+      if window.active
+        return unless window.waiting_for_advance_message_since && key_down.space
 
+        window.active = false
         window.waiting_for_advance_message_since = nil
         window.line0_letters.clear
         window.line1_letters.clear
@@ -140,12 +143,14 @@ module Scenes
     end
 
     def message_tick(_args, message_element)
+      window = @battle.window
+      window.active = true
       if message_element[:line_index].zero?
         y = 11
-        letters_array = @battle.window.line0_letters
+        letters_array = window.line0_letters
       else
         y = 3
-        letters_array = @battle.window.line1_letters
+        letters_array = window.line1_letters
       end
       letters_array.clear
       char_index = message_element[:elapsed_ticks].idiv 2
