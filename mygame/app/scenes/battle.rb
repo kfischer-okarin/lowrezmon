@@ -77,8 +77,8 @@ module Scenes
           action_selection.index = (action_selection.index + 1) % action_selection.options.size
         elsif key_down.space
           player.selected_action = action_selection.options[action_selection.index][:action]
-          opponent.selected_action = choose_opponent_action
-          @battle.turn_order = determine_turn_order
+          opponent.selected_action = BattleSystem.choose_opponent_action(opponent, player)
+          @battle.turn_order = BattleSystem.determine_turn_order(player, opponent)
           queue_turn_resolution_for @battle.turn_order.shift
           @battle.state = :go_to_next_queued_state
           @battle.queued_states = [:other_turn]
@@ -152,21 +152,6 @@ module Scenes
         sprite: { path: 'sprites/icons/exchange.png' },
         rect: { x: 48, y: 2, w: 14, h: 14 }
       }
-    end
-
-    def choose_opponent_action
-      {
-        type: :attack,
-        attack: @battle.opponent.emojimon[:attacks].sample[:id]
-      }
-    end
-
-    def determine_turn_order
-      [:player, :opponent]
-    end
-
-    def calc_damage(attacker, defender, attack)
-      3 + rand(3)
     end
 
     def render_window(screen)
@@ -248,13 +233,11 @@ module Scenes
         case action[:type]
         when :attack
           attack = ATTACKS[action[:attack]]
-          damage = calc_damage(player_emojimon, opponent_emojimon, attack)
-          multiplier = Type.damage_multiplier(attack[:type], against_type: opponent_emojimon[:type])
-          damage = (damage * multiplier).floor
+          damage = BattleSystem.calc_damage(player_emojimon, opponent_emojimon, attack)
           queue_message("#{player_emojimon[:name]} uses #{attack[:name]}!", tick: tick)
           queue_player_attack_animation(tick: tick + 20)
-          after_finished_tick = queue_hp_bar_animation(opponent, -damage, tick: tick + 20)
-          opponent_emojimon[:hp] -= damage
+          after_finished_tick = queue_hp_bar_animation(opponent, -damage[:total_amount], tick: tick + 20)
+          opponent_emojimon[:hp] -= damage[:total_amount]
 
           @battle.state = :other_turn if @battle.turn_order.any?
         when :exchange
@@ -267,13 +250,11 @@ module Scenes
         case action[:type]
         when :attack
           attack = ATTACKS[action[:attack]]
-          damage = calc_damage(opponent_emojimon, player_emojimon, attack)
-          multiplier = Type.damage_multiplier(attack[:type], against_type: player_emojimon[:type])
-          damage = (damage * multiplier).floor
+          damage = BattleSystem.calc_damage(opponent_emojimon, player_emojimon, attack)
           queue_message("#{opponent_emojimon[:name]} uses #{attack[:name]}!", tick: tick)
           queue_opponent_attack_animation(tick: tick + 20)
-          after_finished_tick = queue_hp_bar_animation(player, -damage, tick: tick + 20, with_hp_numbers: true)
-          player_emojimon[:hp] -= damage
+          after_finished_tick = queue_hp_bar_animation(player, -damage[:total_amount], tick: tick + 20, with_hp_numbers: true)
+          player_emojimon[:hp] -= damage[:total_amount]
 
           @battle.state = :other_turn if @battle.turn_order.any?
         when :exchange

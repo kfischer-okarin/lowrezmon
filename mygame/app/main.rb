@@ -1,6 +1,7 @@
 require 'lib/animations.rb'
 require 'lib/cutscene.rb'
 require 'lib/spritesheet_font.rb'
+require 'app/battle_system.rb'
 require 'app/data.rb'
 require 'app/font.rb'
 require 'app/scenes/battle.rb'
