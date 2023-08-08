@@ -57,20 +57,20 @@ module Scenes
       opponent = @battle.opponent
       case @battle.state
       when :battle_start
-        after_message_tick = queue_message("#{opponent.trainer[:name]} wants to battle!")
-        queue_state_change :opponent_sends_emojimon, tick: after_message_tick
-        @battle.queued_states = [:player_sends_emojimon, :player_chooses_action]
+        queue_message("#{opponent.trainer[:name]} wants to battle!")
+        @battle.queued_states = [:opponent_sends_emojimon, :player_sends_emojimon, :player_chooses_action]
+        @battle.state = :go_to_next_queued_state
       when :opponent_sends_emojimon
         opponent.emojimon = build_emojimon opponent.trainer[:emojimons].first
         queue_message("#{opponent.trainer[:name]} sends #{opponent.emojimon[:name]}!")
-        after_appearance_tick = queue_opponent_emojimon_appearance
-        queue_state_change @battle.queued_states.shift, tick: after_appearance_tick
+        queue_opponent_emojimon_appearance
+        @battle.state = :go_to_next_queued_state
       when :player_sends_emojimon
         player.emojimon = build_emojimon player.trainer[:emojimons].first
         prepare_action_selection
         queue_message("Go, #{player.emojimon[:name]}!")
-        after_appearance_tick = queue_player_emojimon_appearance
-        queue_state_change @battle.queued_states.shift, tick: after_appearance_tick
+        queue_player_emojimon_appearance
+        @battle.state = :go_to_next_queued_state
       when :player_chooses_action
         action_selection = @battle.action_selection
         if key_down.left
@@ -82,10 +82,15 @@ module Scenes
           opponent.selected_action = choose_opponent_action
           @battle.turn_order = determine_turn_order
           queue_turn_resolution_for @battle.turn_order.shift
+          @battle.state = :go_to_next_queued_state
+          @battle.queued_states = [:other_turn]
         end
       when :other_turn
-        after_turn_tick = queue_turn_resolution_for @battle.turn_order.shift
-        queue_state_change :player_chooses_action, tick: after_turn_tick
+        queue_turn_resolution_for @battle.turn_order.shift
+        @battle.queued_states = [:player_chooses_action]
+        @battle.state = :go_to_next_queued_state
+      when :go_to_next_queued_state
+        @battle.state = @battle.queued_states.shift
       end
     end
 
@@ -221,10 +226,6 @@ module Scenes
       tick
     end
 
-    def queue_state_change(state, tick: @tick_count + 1)
-      Cutscene.schedule_element @battle.cutscene, tick: tick, type: :state_change, state: state, duration: 1
-    end
-
     def queue_opponent_emojimon_appearance(tick: @tick_count + 1)
       duration = 30
       Cutscene.schedule_element @battle.cutscene, tick: tick, type: :opponent_emojimon_appears, duration: duration
@@ -334,10 +335,6 @@ module Scenes
       letters_array.clear
       char_index = message_element[:elapsed_ticks].idiv 2
       letters_array.concat @font.build_label(text: message_element[:line][0..char_index], x: 1, y: y)
-    end
-
-    def state_change_tick(_args, state_change_element)
-      @battle.state = state_change_element[:state]
     end
 
     def wait_for_advance_message_tick(_args, _element)
