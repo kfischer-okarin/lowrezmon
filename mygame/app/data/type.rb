@@ -30,7 +30,7 @@ module Type
       DAMAGE_MULTIPLIERS.keys
     end
 
-    def damage_multiplier(attacking_type, against_type:)
+    def calc_damage_multiplier_of(attacking_type, against_type:)
       raise "Unknown type: #{attacking_type}" unless all.include? attacking_type
       raise "Unknown type: #{against_type}" unless all.include? against_type
 
