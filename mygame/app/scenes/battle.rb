@@ -74,12 +74,24 @@ module Scenes
           @battle.turn_order = BattleSystem.determine_turn_order(player, opponent)
           queue_next_turn_resolution
           @battle.state = :go_to_next_queued_state
-          @battle.queued_states = [:other_turn]
+          @battle.queued_states = [:other_turn] if @battle.queued_states.empty?
         end
       when :other_turn
         queue_next_turn_resolution
-        @battle.queued_states = [:player_chooses_action]
+        @battle.queued_states = [:player_chooses_action] if @battle.queued_states.empty?
         @battle.state = :go_to_next_queued_state
+      when :opponent_emojimon_dead
+        queue_message("#{opponent.emojimon[:name]} disintegrates!")
+        queue_opponent_emojimon_death
+        if still_has_emojimon?(opponent)
+          opponent.emojimon = build_emojimon BattleSystem.choose_next_opponent_emojimon(opponent, player)
+          @battle.queued_states = [:opponent_sends_emojimon, :player_chooses_action]
+        else
+          @battle.queued_states = [:battle_won]
+        end
+        @battle.state = :go_to_next_queued_state
+      when :battle_won
+        # TODO
       when :go_to_next_queued_state
         @battle.state = @battle.queued_states.shift
       end
@@ -130,6 +142,10 @@ module Scenes
 
     def confirm?(inputs)
       inputs.keyboard.key_down.space
+    end
+
+    def still_has_emojimon?(combatant)
+      combatant.trainer[:emojimons].any? { |emojimon| emojimon[:hp].positive? }
     end
 
     def build_emojimon(emojimon)
@@ -232,7 +248,8 @@ module Scenes
           queue_player_attack_animation(tick: tick + 20)
           target_hp = (opponent_emojimon[:hp] - damage[:total_amount]).clamp(0, opponent_emojimon[:max_hp])
           after_finished_tick = queue_hp_bar_animation(opponent_emojimon, target_hp, tick: tick + 20)
-          queue_effectiveness_message(damage, tick: after_finished_tick)
+          after_finished_tick = queue_effectiveness_message(damage, tick: after_finished_tick)
+          @battle.queued_states = [:opponent_emojimon_dead] if target_hp.zero?
         when :exchange
           @battle.state = :player_chooses_action # TODO: Implemennt
         end
@@ -291,6 +308,14 @@ module Scenes
                                 duration: duration
 
       tick + duration
+    end
+
+    def queue_opponent_emojimon_death(tick: @tick_count + 1)
+      Cutscene.schedule_element @battle.cutscene,
+                                tick: tick,
+                                type: :fadeout_sprite,
+                                sprite: @battle.opponent.sprite,
+                                duration: 60
     end
 
     def message_tick(_args, message_element)
@@ -382,6 +407,14 @@ module Scenes
         element[:start_hp], element[:target_hp]
       ).floor
       element[:emojimon][:trainer_emojimon][:hp] = element[:emojimon][:hp]
+    end
+
+    def fadeout_sprite_tick(_args, element)
+      sprite = element[:sprite]
+      sprite[:a] = element[:elapsed_ticks].remap(
+        0, element[:duration],
+        255, 0
+      ).floor
     end
   end
 end

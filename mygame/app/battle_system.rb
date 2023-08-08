@@ -7,6 +7,11 @@ module BattleSystem
       }
     end
 
+    def choose_next_opponent_emojimon(opponent, _player)
+      alive_emojimon = opponent.trainer[:emojimons].select { |emojimon| emojimon[:hp].positive? }
+      alive_emojimon.sample
+    end
+
     def determine_turn_order(_player, _opponent)
       [:player, :opponent]
     end
