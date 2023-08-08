@@ -36,5 +36,9 @@ module Type
 
       DAMAGE_MULTIPLIERS[attacking_type][against_type] || 1
     end
+
+    def all_effective_against(defending_type)
+      all.select { |type| damage_multiplier(type, against_type: defending_type) > 1 }
+    end
   end
 end
