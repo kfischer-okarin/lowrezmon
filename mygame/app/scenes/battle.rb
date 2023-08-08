@@ -26,6 +26,7 @@ module Scenes
 
       message_window = battle.message_window = args.state.new_entity(:message_window)
       message_window.active = false
+      message_window.queued_messages = []
       message_window.line0_letters = []
       message_window.line1_letters = []
       message_window.waiting_for_advance_message_since = nil
@@ -47,7 +48,7 @@ module Scenes
       cutscene_running = !Cutscene.finished?(@battle.cutscene)
       Cutscene.tick args, @battle.cutscene, handler: self if cutscene_running
 
-      message_window_active = @battle.message_window.active
+      message_window_active = @battle.message_window.active || @battle.message_window.queued_messages.any?
       update_message_window(args) if message_window_active
       return if cutscene_running || message_window_active
 
@@ -115,13 +116,24 @@ module Scenes
 
     def update_message_window(args)
       message_window = @battle.message_window
-      return unless message_window.waiting_for_advance_message_since
+      if message_window.active
+        return unless message_window.waiting_for_advance_message_since
 
-      if confirm?(args.inputs)
-        message_window.active = false
-        message_window.waiting_for_advance_message_since = nil
-        message_window.line0_letters.clear
-        message_window.line1_letters.clear
+        if confirm?(args.inputs)
+          message_window.active = false
+          message_window.waiting_for_advance_message_since = nil
+          message_window.line0_letters.clear
+          message_window.line1_letters.clear
+        end
+      else
+        next_message_lines = message_window.queued_messages.shift
+        tick = @tick_count + 1
+        next_message_lines.each_with_index do |line, index|
+          duration = line.size * 2
+          Cutscene.schedule_element @battle.cutscene, tick: tick, type: :message, duration: duration, line: line, line_index: index
+          tick += duration
+        end
+        Cutscene.schedule_element @battle.cutscene, tick: tick, type: :wait_for_advance_message, duration: 1
       end
     end
 
@@ -195,18 +207,10 @@ module Scenes
       end
     end
 
-    def queue_message(message, tick: @tick_count + 1)
-      lines = @font.split_into_lines(message, line_w: 62)
-      raise 'messages more than 2 lines not yet supported' if lines.size > 2
-
-      lines.each_with_index do |line, index|
-        duration = line.size * 2
-        Cutscene.schedule_element @battle.cutscene, tick: tick, type: :message, duration: duration, line: line, line_index: index
-        tick += duration
-      end
-      Cutscene.schedule_element @battle.cutscene, tick: tick, type: :wait_for_advance_message, duration: 1
-      tick += 1
-      tick
+    def queue_message(message_string, tick: @tick_count + 1)
+      lines = @font.split_into_lines(message_string, line_w: 62)
+      @battle.message_window.queued_messages.concat lines.each_slice(2).to_a
+      tick + 1
     end
 
     def queue_opponent_emojimon_appearance(tick: @tick_count + 1)
