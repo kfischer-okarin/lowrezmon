@@ -136,6 +136,7 @@ module Scenes
       result = emojimon.merge(SPECIES[emojimon[:species]])
       result[:attacks] ||= []
       result[:attacks] = result[:attacks].map { |attack| ATTACKS[attack].merge(id: attack) }
+      result[:trainer_emojimon] = emojimon
       result
     end
 
@@ -376,8 +377,11 @@ module Scenes
     end
 
     def animate_hp_tick(_args, element)
-      animated_hp = element[:elapsed_ticks].remap(0, element[:duration], element[:start_hp], element[:target_hp]).floor
-      element[:emojimon][:hp] = animated_hp
+      element[:emojimon][:hp] = element[:elapsed_ticks].remap(
+        0, element[:duration],
+        element[:start_hp], element[:target_hp]
+      ).floor
+      element[:emojimon][:trainer_emojimon][:hp] = element[:emojimon][:hp]
     end
   end
 end
