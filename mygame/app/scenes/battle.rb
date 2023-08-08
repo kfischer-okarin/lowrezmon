@@ -267,11 +267,15 @@ module Scenes
     end
 
     def queue_player_attack_animation(tick: @tick_count + 1)
-      Cutscene.schedule_element @battle.cutscene, tick: tick, type: :shake, target: @battle.opponent.sprite, duration: 20
+      duration = 20
+      Cutscene.schedule_element @battle.cutscene, tick: tick, type: :shake, target: @battle.opponent.sprite, duration: duration
+      tick + duration
     end
 
     def queue_opponent_attack_animation(tick: @tick_count + 1)
-      Cutscene.schedule_element @battle.cutscene, tick: tick, type: :shake, target: @battle.player.sprite, duration: 20
+      duration = 20
+      Cutscene.schedule_element @battle.cutscene, tick: tick, type: :shake, target: @battle.player.sprite, duration: duration
+      tick + duration
     end
 
     def queue_hp_bar_animation(combatant, delta, tick: @tick_count + 1, with_hp_numbers: false)
