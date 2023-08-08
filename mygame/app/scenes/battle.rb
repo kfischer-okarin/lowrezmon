@@ -53,15 +53,15 @@ module Scenes
       case @battle.state
       when :battle_start
         queue_message("#{opponent.trainer[:name]} wants to battle!")
+        player.emojimon = build_emojimon player.trainer[:emojimons].first
+        opponent.emojimon = build_emojimon opponent.trainer[:emojimons].first
         @battle.queued_states = [:opponent_sends_emojimon, :player_sends_emojimon, :player_chooses_action]
         @battle.state = :go_to_next_queued_state
       when :opponent_sends_emojimon
-        opponent.emojimon = build_emojimon opponent.trainer[:emojimons].first
         queue_message("#{opponent.trainer[:name]} sends #{opponent.emojimon[:name]}!")
         queue_opponent_emojimon_appearance
         @battle.state = :go_to_next_queued_state
       when :player_sends_emojimon
-        player.emojimon = build_emojimon player.trainer[:emojimons].first
         queue_message("Go, #{player.emojimon[:name]}!")
         queue_player_emojimon_appearance
         prepare_action_menu
