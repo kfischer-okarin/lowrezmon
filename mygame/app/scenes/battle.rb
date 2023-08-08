@@ -65,9 +65,9 @@ module Scenes
         @battle.state = :go_to_next_queued_state
       when :player_sends_emojimon
         player.emojimon = build_emojimon player.trainer[:emojimons].first
-        prepare_action_selection
         queue_message("Go, #{player.emojimon[:name]}!")
         queue_player_emojimon_appearance
+        prepare_action_selection
         @battle.state = :go_to_next_queued_state
       when :player_chooses_action
         action_selection = @battle.action_selection
@@ -79,12 +79,12 @@ module Scenes
           player.selected_action = action_selection.options[action_selection.index][:action]
           opponent.selected_action = BattleSystem.choose_opponent_action(opponent, player)
           @battle.turn_order = BattleSystem.determine_turn_order(player, opponent)
-          queue_turn_resolution_for @battle.turn_order.shift
+          queue_next_turn_resolution
           @battle.state = :go_to_next_queued_state
           @battle.queued_states = [:other_turn]
         end
       when :other_turn
-        queue_turn_resolution_for @battle.turn_order.shift
+        queue_next_turn_resolution
         @battle.queued_states = [:player_chooses_action]
         @battle.state = :go_to_next_queued_state
       when :go_to_next_queued_state
@@ -221,7 +221,8 @@ module Scenes
       tick + duration
     end
 
-    def queue_turn_resolution_for(combatant, tick: @tick_count + 1)
+    def queue_next_turn_resolution(tick: @tick_count + 1)
+      combatant = @battle.turn_order.shift
       player = @battle.player
       player_emojimon = player.emojimon
       opponent = @battle.opponent
@@ -238,8 +239,6 @@ module Scenes
           queue_player_attack_animation(tick: tick + 20)
           after_finished_tick = queue_hp_bar_animation(opponent, -damage[:total_amount], tick: tick + 20)
           opponent_emojimon[:hp] -= damage[:total_amount]
-
-          @battle.state = :other_turn if @battle.turn_order.any?
         when :exchange
           @battle.state = :player_chooses_action # TODO: Implemennt
         end
@@ -255,8 +254,6 @@ module Scenes
           queue_opponent_attack_animation(tick: tick + 20)
           after_finished_tick = queue_hp_bar_animation(player, -damage[:total_amount], tick: tick + 20, with_hp_numbers: true)
           player_emojimon[:hp] -= damage[:total_amount]
-
-          @battle.state = :other_turn if @battle.turn_order.any?
         when :exchange
           @battle.state = :player_chooses_action # TODO: Implemennt
         end
