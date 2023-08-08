@@ -8,7 +8,6 @@ module Scenes
       battle.player_stats_visible = false
       battle.opponent_stats_visible = false
 
-
       player = battle.player = args.state.new_entity(:player)
       player.trainer = player_trainer
       player.emojimon = nil
@@ -65,16 +64,12 @@ module Scenes
         player.emojimon = build_emojimon player.trainer[:emojimons].first
         queue_message("Go, #{player.emojimon[:name]}!")
         queue_player_emojimon_appearance
-        prepare_action_selection
+        prepare_action_menu
         @battle.state = :go_to_next_queued_state
       when :player_chooses_action
-        action_selection = @battle.action_selection
-        if key_down.left
-          action_selection.index = (action_selection.index - 1) % action_selection.options.size
-        elsif key_down.right
-          action_selection.index = (action_selection.index + 1) % action_selection.options.size
-        elsif key_down.space
-          player.selected_action = action_selection.options[action_selection.index][:action]
+        @action_menu.tick(args)
+        if key_down.space
+          player.selected_action = @action_menu.selected_child[:action]
           opponent.selected_action = BattleSystem.choose_opponent_action(opponent, player)
           @battle.turn_order = BattleSystem.determine_turn_order(player, opponent)
           queue_next_turn_resolution
@@ -144,22 +139,21 @@ module Scenes
       result
     end
 
-    def prepare_action_selection
-      action_selection = @battle.action_selection
-      action_selection.index = 0
-      action_selection.options = []
-      @battle.player.emojimon[:attacks].each_with_index do |attack, index|
-        action_selection.options << {
+    def prepare_action_menu
+      options = @battle.player.emojimon[:attacks].map_with_index { |attack, index|
+        {
           action: { type: :attack, attack: attack[:id] },
           sprite: attack[:sprite],
           rect: { x: 2 + (index * 16), y: 2, w: 14, h: 14 }
         }
-      end
-      action_selection.options << {
+      }
+      options << {
         action: { type: :exchange },
         sprite: { path: 'sprites/icons/exchange.png' },
         rect: { x: 48, y: 2, w: 14, h: 14 }
       }
+
+      @action_menu = MenuNavigation.new(options, horizontal: true)
     end
 
     def render_window(screen)
@@ -175,7 +169,7 @@ module Scenes
       if @battle.message_window.active
         render_message_window(screen)
       elsif @battle.state == :player_chooses_action
-        render_action_selection(screen)
+        render_action_menu(screen)
       end
     end
 
@@ -193,11 +187,9 @@ module Scenes
       }.sprite!
     end
 
-    def render_action_selection(screen)
-      action_selection = @battle.action_selection
-
-      action_selection.options.each_with_index do |option, index|
-        bg_color = action_selection.index == index ? { r: 0x61, g: 0xa2, b: 0xff } : { r: 0xb2, g: 0xb2, b: 0xb2 }
+    def render_action_menu(screen)
+      @action_menu.children.each do |option|
+        bg_color = option.selected ? { r: 0x61, g: 0xa2, b: 0xff } : { r: 0xb2, g: 0xb2, b: 0xb2 }
         screen.primitives << option[:rect].merge(path: 'sprites/icons/background.png').merge!(bg_color)
         screen.primitives << option[:rect].merge(option[:sprite])
       end
