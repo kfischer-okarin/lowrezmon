@@ -5,23 +5,20 @@ module Scenes
       @fatnumbers_font = build_pokemini_fatnumbers_font
 
       battle = args.state.battle = args.state.new_entity(:battle)
+      battle.player_stats_visible = false
+      battle.opponent_stats_visible = false
+
+
       player = battle.player = args.state.new_entity(:player)
       player.trainer = player_trainer
       player.emojimon = nil
       player.sprite = nil
-      player.stats_display.name_letters = []
-      player.stats_display.hp_background = nil
-      player.stats_display.hp_bar = nil
-      player.stats_display.hp_letters = []
       player.selected_action = nil
 
       opponent = battle.opponent = args.state.new_entity(:opponent)
       opponent.trainer = opponent_trainer
       opponent.emojimon = nil
       opponent.sprite = nil
-      opponent.stats_display.name_letters = []
-      opponent.stats_display.hp_background = nil
-      opponent.stats_display.hp_bar = nil
       opponent.selected_action = nil
 
       message_window = battle.message_window = args.state.new_entity(:message_window)
@@ -100,15 +97,14 @@ module Scenes
       }.sprite!
       opponent = @battle.opponent
       screen.primitives << opponent.sprite
-      screen.primitives << opponent.stats_display.name_letters
-      screen.primitives << opponent.stats_display.hp_background
-      screen.primitives << opponent.stats_display.hp_bar
+      if @battle.opponent_stats_visible
+        UI.render_stats_display(screen, opponent.emojimon, x: 1, y: 52, with_hp_numbers: false)
+      end
       player = @battle.player
       screen.primitives << player.sprite
-      screen.primitives << player.stats_display.name_letters
-      screen.primitives << player.stats_display.hp_background
-      screen.primitives << player.stats_display.hp_bar
-      screen.primitives << player.stats_display.hp_letters
+      if @battle.player_stats_visible
+        UI.render_stats_display(screen, player.emojimon, x: 34, y: 20, with_hp_numbers: true)
+      end
       render_window(screen)
     end
 
@@ -241,9 +237,9 @@ module Scenes
           damage = BattleSystem.calc_damage(player_emojimon, opponent_emojimon, attack)
           queue_message("#{player_emojimon[:name]} uses #{attack[:name]}!", tick: tick)
           queue_player_attack_animation(tick: tick + 20)
-          after_finished_tick = queue_hp_bar_animation(opponent, -damage[:total_amount], tick: tick + 20)
+          target_hp = (opponent_emojimon[:hp] - damage[:total_amount]).clamp(0, opponent_emojimon[:max_hp])
+          after_finished_tick = queue_hp_bar_animation(opponent_emojimon, target_hp, tick: tick + 20)
           queue_effectiveness_message(damage, tick: after_finished_tick)
-          opponent_emojimon[:hp] -= damage[:total_amount]
         when :exchange
           @battle.state = :player_chooses_action # TODO: Implemennt
         end
@@ -257,9 +253,9 @@ module Scenes
           damage = BattleSystem.calc_damage(opponent_emojimon, player_emojimon, attack)
           queue_message("#{opponent_emojimon[:name]} uses #{attack[:name]}!", tick: tick)
           queue_opponent_attack_animation(tick: tick + 20)
-          after_finished_tick = queue_hp_bar_animation(player, -damage[:total_amount], tick: tick + 20, with_hp_numbers: true)
+          target_hp = (player_emojimon[:hp] - damage[:total_amount]).clamp(0, player_emojimon[:max_hp])
+          after_finished_tick = queue_hp_bar_animation(player_emojimon, target_hp, tick: tick + 20)
           queue_effectiveness_message(damage, tick: after_finished_tick)
-          player_emojimon[:hp] -= damage[:total_amount]
         when :exchange
           @battle.state = :player_chooses_action # TODO: Implemennt
         end
@@ -290,30 +286,16 @@ module Scenes
       tick + duration
     end
 
-    def queue_hp_bar_animation(combatant, delta, tick: @tick_count + 1, with_hp_numbers: false)
-      target_hp = (combatant.emojimon[:hp] + delta).clamp(0, combatant.emojimon[:max_hp])
-      hp_bar = combatant.stats_display.hp_bar
-      target_w = ((target_hp / combatant.emojimon[:max_hp]) * 25).floor
-      duration = (hp_bar[:w].abs - target_w.abs) * 2
+    def queue_hp_bar_animation(emojimon, target_hp, tick: @tick_count + 1)
+      start_hp = emojimon[:hp]
+      duration = (target_hp.abs - start_hp.abs).abs * 3
       Cutscene.schedule_element @battle.cutscene,
                                 tick: tick,
-                                type: :animate_hp_bar,
-                                hp_bar: hp_bar,
-                                target_w: target_w,
+                                type: :animate_hp,
+                                emojimon: emojimon,
+                                start_hp: start_hp,
+                                target_hp: target_hp,
                                 duration: duration
-
-      if with_hp_numbers
-        hp_letters = combatant.stats_display.hp_letters
-        Cutscene.schedule_element @battle.cutscene,
-                                  tick: tick,
-                                  type: :animate_hp_letters,
-                                  hp_bar: hp_letters,
-                                  current_hp: combatant.emojimon[:hp],
-                                  max_hp: combatant.emojimon[:max_hp],
-                                  target_hp: target_hp,
-                                  duration: duration
-      end
-
 
       tick + duration
     end
@@ -352,17 +334,8 @@ module Scenes
         )
       else
         Animations.perform_tick element[:grow_animation]
-        refresh_opponent_stats if element[:elapsed_ticks] == element[:duration] - 1
+        @battle.opponent_stats_visible = true if element[:elapsed_ticks] == element[:duration] - 1
       end
-    end
-
-    def refresh_opponent_stats
-      emojimon = @battle.opponent.emojimon
-      stats_display = @battle.opponent.stats_display
-      stats_display.name_letters = @font.build_label(text: emojimon[:name], x: 1, y: 57)
-      stats_display.hp_background = { x: 1, y: 52, w: 27, h: 3, path: :pixel, r: 0, g: 0, b: 0 }.border!
-      bar_w = ((emojimon[:hp] / emojimon[:max_hp]) * 25).floor
-      stats_display.hp_bar = { x: 2, y: 53, w: bar_w, h: 1, path: :pixel, r: 0xb8, g: 0xf8, b: 0x18 }
     end
 
     def player_emojimon_appears_tick(_args, element)
@@ -380,18 +353,8 @@ module Scenes
         )
       else
         Animations.perform_tick element[:grow_animation]
-        refresh_player_stats if element[:elapsed_ticks] == element[:duration] - 1
+        @battle.player_stats_visible = true if element[:elapsed_ticks] == element[:duration] - 1
       end
-    end
-
-    def refresh_player_stats
-      emojimon = @battle.player.emojimon
-      stats_display = @battle.player.stats_display
-      stats_display.name_letters = @font.build_label(text: emojimon[:name], x: 34, y: 32)
-      stats_display.hp_background = { x: 34, y: 27, w: 27, h: 3, path: :pixel, r: 0, g: 0, b: 0 }.border!
-      bar_w = ((emojimon[:hp] / emojimon[:max_hp]) * 25).floor
-      stats_display.hp_bar = { x: 35, y: 28, w: bar_w, h: 1, path: :pixel, r: 0xb8, g: 0xf8, b: 0x18 }
-      stats_display.hp_letters = @fatnumbers_font.build_label(text: "#{emojimon[:hp]}/#{emojimon[:max_hp]}", x: 34, y: 20)
     end
 
     MAX_SHAKE = 10
@@ -420,23 +383,9 @@ module Scenes
       end
     end
 
-    def animate_hp_bar_tick(_args, element)
-      hp_bar = element[:hp_bar]
-      element[:animation] ||= Animations.lerp(
-        hp_bar,
-        to: { w: element[:target_w] },
-        duration: element[:duration]
-      )
-      Animations.perform_tick element[:animation]
-    end
-
-    def animate_hp_letters_tick(_args, element)
-      hp_letters = element[:hp_bar]
-      element[:x] ||= hp_letters.first[:x]
-      element[:y] ||= hp_letters.first[:y]
-      animated_hp = element[:elapsed_ticks].remap(0, element[:duration], element[:current_hp], element[:target_hp]).floor
-      hp_letters.clear
-      hp_letters.concat @fatnumbers_font.build_label(text: "#{animated_hp}/#{element[:max_hp]}", x: element[:x], y: element[:y])
+    def animate_hp_tick(_args, element)
+      animated_hp = element[:elapsed_ticks].remap(0, element[:duration], element[:start_hp], element[:target_hp]).floor
+      element[:emojimon][:hp] = animated_hp
     end
   end
 end
