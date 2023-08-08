@@ -43,15 +43,13 @@ module Scenes
       @battle = args.state.battle
       @tick_count = args.tick_count
       key_down = args.inputs.keyboard.key_down
-      unless Cutscene.finished?(@battle.cutscene)
-        Cutscene.tick args, @battle.cutscene, handler: self
-        return
-      end
 
-      if @battle.message_window.active
-        update_message_window(args)
-        return
-      end
+      cutscene_running = !Cutscene.finished?(@battle.cutscene)
+      Cutscene.tick args, @battle.cutscene, handler: self if cutscene_running
+
+      message_window_active = @battle.message_window.active
+      update_message_window(args) if message_window_active
+      return if cutscene_running || message_window_active
 
       player = @battle.player
       opponent = @battle.opponent
