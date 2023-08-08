@@ -242,6 +242,7 @@ module Scenes
           queue_message("#{player_emojimon[:name]} uses #{attack[:name]}!", tick: tick)
           queue_player_attack_animation(tick: tick + 20)
           after_finished_tick = queue_hp_bar_animation(opponent, -damage[:total_amount], tick: tick + 20)
+          queue_effectiveness_message(damage, tick: after_finished_tick)
           opponent_emojimon[:hp] -= damage[:total_amount]
         when :exchange
           @battle.state = :player_chooses_action # TODO: Implemennt
@@ -257,6 +258,7 @@ module Scenes
           queue_message("#{opponent_emojimon[:name]} uses #{attack[:name]}!", tick: tick)
           queue_opponent_attack_animation(tick: tick + 20)
           after_finished_tick = queue_hp_bar_animation(player, -damage[:total_amount], tick: tick + 20, with_hp_numbers: true)
+          queue_effectiveness_message(damage, tick: after_finished_tick)
           player_emojimon[:hp] -= damage[:total_amount]
         when :exchange
           @battle.state = :player_chooses_action # TODO: Implemennt
@@ -264,6 +266,16 @@ module Scenes
         opponent.selected_action = nil
       end
       after_finished_tick
+    end
+
+    def queue_effectiveness_message(damage, tick: @tick_count + 1)
+      if damage[:multiplier] < 1
+        queue_message('It\'s not too effective...', tick: tick)
+      elsif damage[:multiplier] > 1
+        queue_message('It\'s mega effective!', tick: tick)
+      else
+        tick
+      end
     end
 
     def queue_player_attack_animation(tick: @tick_count + 1)
