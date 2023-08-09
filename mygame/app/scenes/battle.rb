@@ -28,7 +28,7 @@ module Scenes
 
       battle.cutscene = Cutscene.build_empty
       battle.state = :battle_start
-      battle.queued_states = []
+      battle.queued_states_after_messages = []
       battle.turn_order = nil
     end
 
@@ -55,17 +55,17 @@ module Scenes
         queue_message("#{opponent.trainer[:name]} wants to battle!")
         player.emojimon = build_emojimon player.trainer[:emojimons].first
         opponent.emojimon = build_emojimon opponent.trainer[:emojimons].first
-        @battle.queued_states = [:opponent_sends_emojimon, :player_sends_emojimon, :player_chooses_action]
-        @battle.state = :go_to_next_queued_state
+        @battle.queued_states_after_messages = [:opponent_sends_emojimon, :player_sends_emojimon, :player_chooses_action]
+        @battle.state = :go_to_next_state_after_messages
       when :opponent_sends_emojimon
         queue_message("#{opponent.trainer[:name]} sends #{opponent.emojimon[:name]}!")
         queue_opponent_emojimon_appearance
-        @battle.state = :go_to_next_queued_state
+        @battle.state = :go_to_next_state_after_messages
       when :player_sends_emojimon
         queue_message("Go, #{player.emojimon[:name]}!")
         queue_player_emojimon_appearance
         prepare_action_menu
-        @battle.state = :go_to_next_queued_state
+        @battle.state = :go_to_next_state_after_messages
       when :player_chooses_action
         @action_menu.tick(args)
         if @action_menu.selection_changed?
@@ -77,44 +77,44 @@ module Scenes
           opponent.selected_action = BattleSystem.choose_opponent_action(opponent, player)
           @battle.turn_order = BattleSystem.determine_turn_order(player, opponent)
           queue_next_turn_resolution
-          @battle.state = :go_to_next_queued_state
-          @battle.queued_states = [:other_turn] if @battle.queued_states.empty?
+          @battle.queued_states_after_messages = [:other_turn] if @battle.queued_states_after_messages.empty?
+          @battle.state = :go_to_next_state_after_messages
         end
       when :other_turn
         queue_next_turn_resolution
-        @battle.queued_states = [:player_chooses_action] if @battle.queued_states.empty?
-        @battle.state = :go_to_next_queued_state
+        @battle.queued_states_after_messages = [:player_chooses_action] if @battle.queued_states_after_messages.empty?
+        @battle.state = :go_to_next_state_after_messages
       when :opponent_emojimon_dead
         queue_message("#{opponent.emojimon[:name]} disintegrates!")
         queue_opponent_emojimon_death
         if still_has_emojimon?(opponent)
           opponent.emojimon = build_emojimon BattleSystem.choose_next_opponent_emojimon(opponent, player)
-          @battle.queued_states = [:opponent_sends_emojimon, :player_chooses_action]
+          @battle.queued_states_after_messages = [:opponent_sends_emojimon, :player_chooses_action]
         else
-          @battle.queued_states = [:battle_won]
+          @battle.queued_states_after_messages = [:battle_won]
         end
-        @battle.state = :go_to_next_queued_state
+        @battle.state = :go_to_next_state_after_messages
       when :player_emojimon_dead
         queue_message("#{player.emojimon[:name]} disintegrates!")
         queue_player_emojimon_death
-        @battle.queued_states = still_has_emojimon?(player) ? [:player_chooses_emojimon] : [:battle_lost]
-        @battle.state = :go_to_next_queued_state
+        @battle.queued_states_after_messages = still_has_emojimon?(player) ? [:player_chooses_emojimon] : [:battle_lost]
+        @battle.state = :go_to_next_state_after_messages
       when :player_chooses_emojimon
         # TODO
       when :battle_won
         queue_message("#{opponent.trainer[:name]} is defeated!")
         # @previous_scene.battle_won
-        @battle.queued_states = [:return_to_previous_scene]
-        @battle.state = :go_to_next_queued_state
+        @battle.queued_states_after_messages = [:return_to_previous_scene]
+        @battle.state = :go_to_next_state_after_messages
       when :battle_lost
         queue_message('You were defeated!')
         # @previous_scene.battle_lost
-        @battle.queued_states = [:return_to_previous_scene]
-        @battle.state = :go_to_next_queued_state
+        @battle.queued_states_after_messages = [:return_to_previous_scene]
+        @battle.state = :go_to_next_state_after_messages
       when :return_to_previous_scene
         # $next_scene = @previous_scene
-      when :go_to_next_queued_state
-        @battle.state = @battle.queued_states.shift
+      when :go_to_next_state_after_messages
+        @battle.state = @battle.queued_states_after_messages.shift
       end
     end
 
@@ -264,7 +264,7 @@ module Scenes
           target_hp = (opponent_emojimon[:hp] - damage[:total_amount]).clamp(0, opponent_emojimon[:max_hp])
           after_finished_tick = queue_hp_bar_animation(opponent_emojimon, target_hp, tick: tick + 20)
           after_finished_tick = queue_effectiveness_message(damage, tick: after_finished_tick)
-          @battle.queued_states = [:opponent_emojimon_dead] if target_hp.zero?
+          @battle.queued_states_after_messages = [:opponent_emojimon_dead] if target_hp.zero?
         when :exchange
           @battle.state = :player_chooses_action # TODO: Implemennt
         end
@@ -281,7 +281,7 @@ module Scenes
           target_hp = (player_emojimon[:hp] - damage[:total_amount]).clamp(0, player_emojimon[:max_hp])
           after_finished_tick = queue_hp_bar_animation(player_emojimon, target_hp, tick: tick + 20)
           after_finished_tick = queue_effectiveness_message(damage, tick: after_finished_tick)
-          @battle.queued_states = [:player_emojimon_dead] if target_hp.zero?
+          @battle.queued_states_after_messages = [:player_emojimon_dead] if target_hp.zero?
         when :exchange
           @battle.state = :player_chooses_action # TODO: Implemennt
         end
