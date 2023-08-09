@@ -121,9 +121,8 @@ module Scenes
 
     def render(screen, state)
       screen.primitives << {
-        x: 0, y: 0, w: 64, h: 64, path: :pixel,
-        r: 0xF0, g: 0xD0, b: 0xB0
-      }.sprite!
+        x: 0, y: 0, w: 64, h: 64, path: :pixel
+      }.sprite!(Palette::BATTLE_BG_COLOR)
       opponent = @battle.opponent
       screen.primitives << opponent.sprite
       if @battle.opponent_stats_visible
@@ -197,9 +196,8 @@ module Scenes
         r: 0, g: 0, b: 0
       }.sprite!
       screen.primitives << {
-        x: 0, y: 0, w: 64, h: 18, path: :pixel,
-        r: 0xFC, g: 0xFC, b: 0xFC
-      }.sprite!
+        x: 0, y: 0, w: 64, h: 18, path: :pixel
+      }.sprite!(Palette::WINDOW_BG_COLOR)
 
       if @battle.message_window.active
         render_message_window(screen)
@@ -224,7 +222,7 @@ module Scenes
 
     def render_action_menu(screen)
       @action_menu.children.each do |option|
-        bg_color = option.selected ? { r: 0x61, g: 0xa2, b: 0xff } : { r: 0xb2, g: 0xb2, b: 0xb2 }
+        bg_color = option.selected ? Palette::BATTLE_SELECTED_ACTION_COLOR : Palette::BATTLE_UNSELECTED_ACTION_COLOR
         screen.primitives << option[:rect].merge(path: 'sprites/icons/background.png').merge!(bg_color)
         screen.primitives << option[:rect].merge(option[:sprite])
       end
