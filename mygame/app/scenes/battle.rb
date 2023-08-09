@@ -72,7 +72,7 @@ module Scenes
         if @action_menu.selection_changed?
           SFX.play args, :cursor_move
         end
-        if confirm?(args.inputs)
+        if Controls.confirm?(args.inputs)
           SFX.play args, :confirm
           player.selected_action = @action_menu.selected_child[:action]
           opponent.selected_action = BattleSystem.choose_opponent_action(opponent, player)
@@ -144,7 +144,7 @@ module Scenes
       if message_window.active
         return unless message_window.waiting_for_advance_message_since
 
-        if confirm?(args.inputs)
+        if Controls.confirm?(args.inputs)
           message_window.active = false
           message_window.waiting_for_advance_message_since = nil
           message_window.line0_letters.clear
@@ -160,10 +160,6 @@ module Scenes
         end
         Cutscene.schedule_element @battle.cutscene, tick: tick, type: :wait_for_advance_message, duration: 1
       end
-    end
-
-    def confirm?(inputs)
-      inputs.keyboard.key_down.space
     end
 
     def still_has_emojimon?(combatant)
