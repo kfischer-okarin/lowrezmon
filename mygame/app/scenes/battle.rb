@@ -2,7 +2,6 @@ module Scenes
   class Battle
     def initialize(args, player_trainer:, opponent_trainer:)
       @font = build_pokemini_font
-      @fatnumbers_font = build_pokemini_fatnumbers_font
 
       battle = args.state.battle = args.state.new_entity(:battle)
       battle.player_stats_visible = false
