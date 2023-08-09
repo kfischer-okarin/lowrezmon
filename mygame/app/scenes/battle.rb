@@ -73,6 +73,12 @@ module Scenes
         @battle.state = :go_to_next_queued_state
       when :player_chooses_action
         @action_menu.tick(args)
+        if @action_menu.selection_changed?
+          $gtk.args.audio[:cursor_move] = {
+            input: 'sfx/cursor_move.wav',
+            looping: false
+          }
+        end
         if key_down.space
           player.selected_action = @action_menu.selected_child[:action]
           opponent.selected_action = BattleSystem.choose_opponent_action(opponent, player)

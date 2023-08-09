@@ -16,6 +16,7 @@ class MenuNavigation
 
   def selected_index=(value)
     old_index = @selected_index
+    @selection_changed = old_index != value
     @selected_index = @loop ? (value % @children.size) : value.clamp(0, @children.size - 1)
     @children[old_index].selected = false
     @children[@selected_index].selected = true
@@ -23,7 +24,12 @@ class MenuNavigation
     @selected_index
   end
 
+  def selection_changed?
+    @selection_changed
+  end
+
   def tick(args)
+    @selection_changed = false
     key_down = args.inputs.keyboard.key_down
     if @horizontal
       if key_down.left
