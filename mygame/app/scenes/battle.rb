@@ -322,6 +322,7 @@ module Scenes
                                 type: :fadeout_sprite,
                                 sprite: @battle.opponent.sprite,
                                 duration: 60
+      Cutscene.schedule_element @battle.cutscene, tick: tick, type: :play_sfx, path: 'sfx/death.wav', duration: 1
     end
 
     def message_tick(_args, message_element)
