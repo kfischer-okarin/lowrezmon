@@ -7,6 +7,7 @@ require 'app/data.rb'
 require 'app/font.rb'
 require 'app/scenes/battle.rb'
 require 'app/scenes/debug_screen.rb'
+require 'app/sfx.rb'
 require 'app/ui.rb'
 
 LOWREZ_ZOOM = 11

@@ -70,13 +70,10 @@ module Scenes
       when :player_chooses_action
         @action_menu.tick(args)
         if @action_menu.selection_changed?
-          $gtk.args.audio[:cursor_move] = {
-            input: 'sfx/cursor_move.wav',
-            looping: false
-          }
+          SFX.play args, :cursor_move
         end
         if confirm?(args.inputs)
-          play_confirm_sound
+          SFX.play args, :confirm
           player.selected_action = @action_menu.selected_child[:action]
           opponent.selected_action = BattleSystem.choose_opponent_action(opponent, player)
           @battle.turn_order = BattleSystem.determine_turn_order(player, opponent)
@@ -313,14 +310,14 @@ module Scenes
     def queue_player_attack_animation(tick: @tick_count + 1)
       duration = 20
       Cutscene.schedule_element @battle.cutscene, tick: tick, type: :shake, target: @battle.opponent.sprite, duration: duration
-      Cutscene.schedule_element @battle.cutscene, tick: tick, type: :play_sfx, path: 'sfx/hit.wav', duration: 1
+      Cutscene.schedule_element @battle.cutscene, tick: tick, type: :play_sfx, id: :hit, duration: 1
       tick + duration
     end
 
     def queue_opponent_attack_animation(tick: @tick_count + 1)
       duration = 20
       Cutscene.schedule_element @battle.cutscene, tick: tick, type: :shake, target: @battle.player.sprite, duration: duration
-      Cutscene.schedule_element @battle.cutscene, tick: tick, type: :play_sfx, path: 'sfx/hit.wav', duration: 1
+      Cutscene.schedule_element @battle.cutscene, tick: tick, type: :play_sfx, id: :hit, duration: 1
       tick + duration
     end
 
@@ -344,7 +341,7 @@ module Scenes
                                 type: :fadeout_sprite,
                                 sprite: @battle.opponent.sprite,
                                 duration: 60
-      Cutscene.schedule_element @battle.cutscene, tick: tick, type: :play_sfx, path: 'sfx/death.wav', duration: 1
+      Cutscene.schedule_element @battle.cutscene, tick: tick, type: :play_sfx, id: :death, duration: 1
     end
 
     def queue_player_emojimon_death(tick: @tick_count + 1)
@@ -353,7 +350,7 @@ module Scenes
                                 type: :fadeout_sprite,
                                 sprite: @battle.player.sprite,
                                 duration: 60
-      Cutscene.schedule_element @battle.cutscene, tick: tick, type: :play_sfx, path: 'sfx/death.wav', duration: 1
+      Cutscene.schedule_element @battle.cutscene, tick: tick, type: :play_sfx, id: :death, duration: 1
     end
 
     def message_tick(_args, message_element)
@@ -455,18 +452,8 @@ module Scenes
       ).floor
     end
 
-    def play_sfx_tick(_args, element)
-      $gtk.args.audio[:sfx] = {
-        input: element[:path],
-        looping: false
-      }
-    end
-
-    def play_confirm_sound
-      $gtk.args.audio[:confirm] = {
-        input: 'sfx/select.wav',
-        looping: false
-      }
+    def play_sfx_tick(args, element)
+      SFX.play(args, element[:id])
     end
   end
 end
