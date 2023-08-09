@@ -79,7 +79,8 @@ module Scenes
             looping: false
           }
         end
-        if key_down.space
+        if confirm?(args.inputs)
+          play_confirm_sound
           player.selected_action = @action_menu.selected_child[:action]
           opponent.selected_action = BattleSystem.choose_opponent_action(opponent, player)
           @battle.turn_order = BattleSystem.determine_turn_order(player, opponent)
@@ -461,6 +462,13 @@ module Scenes
     def play_sfx_tick(_args, element)
       $gtk.args.audio[:sfx] = {
         input: element[:path],
+        looping: false
+      }
+    end
+
+    def play_confirm_sound
+      $gtk.args.audio[:confirm] = {
+        input: 'sfx/select.wav',
         looping: false
       }
     end
