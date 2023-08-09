@@ -94,8 +94,25 @@ module Scenes
           @battle.queued_states = [:battle_won]
         end
         @battle.state = :go_to_next_queued_state
-      when :battle_won
+      when :player_emojimon_dead
+        queue_message("#{player.emojimon[:name]} disintegrates!")
+        queue_player_emojimon_death
+        @battle.queued_states = still_has_emojimon?(player) ? [:player_chooses_emojimon] : [:battle_lost]
+        @battle.state = :go_to_next_queued_state
+      when :player_chooses_emojimon
         # TODO
+      when :battle_won
+        queue_message("#{opponent.trainer[:name]} is defeated!")
+        # @previous_scene.battle_won
+        @battle.queued_states = [:return_to_previous_scene]
+        @battle.state = :go_to_next_queued_state
+      when :battle_lost
+        queue_message('You were defeated!')
+        # @previous_scene.battle_lost
+        @battle.queued_states = [:return_to_previous_scene]
+        @battle.state = :go_to_next_queued_state
+      when :return_to_previous_scene
+        # $next_scene = @previous_scene
       when :go_to_next_queued_state
         @battle.state = @battle.queued_states.shift
       end
@@ -269,7 +286,8 @@ module Scenes
           queue_opponent_attack_animation(tick: tick + 20)
           target_hp = (player_emojimon[:hp] - damage[:total_amount]).clamp(0, player_emojimon[:max_hp])
           after_finished_tick = queue_hp_bar_animation(player_emojimon, target_hp, tick: tick + 20)
-          queue_effectiveness_message(damage, tick: after_finished_tick)
+          after_finished_tick = queue_effectiveness_message(damage, tick: after_finished_tick)
+          @battle.queued_states = [:player_emojimon_dead] if target_hp.zero?
         when :exchange
           @battle.state = :player_chooses_action # TODO: Implemennt
         end
@@ -321,6 +339,15 @@ module Scenes
                                 tick: tick,
                                 type: :fadeout_sprite,
                                 sprite: @battle.opponent.sprite,
+                                duration: 60
+      Cutscene.schedule_element @battle.cutscene, tick: tick, type: :play_sfx, path: 'sfx/death.wav', duration: 1
+    end
+
+    def queue_player_emojimon_death(tick: @tick_count + 1)
+      Cutscene.schedule_element @battle.cutscene,
+                                tick: tick,
+                                type: :fadeout_sprite,
+                                sprite: @battle.player.sprite,
                                 duration: 60
       Cutscene.schedule_element @battle.cutscene, tick: tick, type: :play_sfx, path: 'sfx/death.wav', duration: 1
     end
