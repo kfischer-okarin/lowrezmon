@@ -26,9 +26,6 @@ module Scenes
       message_window.line1_letters = []
       message_window.waiting_for_advance_message_since = nil
 
-      action_selection = battle.action_selection = args.state.new_entity(:action_selection)
-      action_selection.index = 0
-
       battle.cutscene = Cutscene.build_empty
       battle.state = :battle_start
       battle.queued_states = []
