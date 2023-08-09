@@ -52,6 +52,9 @@ module Scenes
       opponent = @battle.opponent
       case @battle.state
       when :battle_start
+        args.audio[:bgm] = {
+          input: 'music/they_be_angry.mp3'
+        }
         queue_message("#{opponent.trainer[:name]} wants to battle!")
         player.emojimon = build_emojimon player.trainer[:emojimons].first
         opponent.emojimon = build_emojimon opponent.trainer[:emojimons].first
