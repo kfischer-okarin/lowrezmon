@@ -35,7 +35,6 @@ module Scenes
     def update(args)
       @battle = args.state.battle
       @tick_count = args.tick_count
-      key_down = args.inputs.keyboard.key_down
 
       cutscene_running = !Cutscene.finished?(@battle.cutscene)
       Cutscene.tick args, @battle.cutscene, handler: self if cutscene_running
