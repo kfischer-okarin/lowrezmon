@@ -53,7 +53,8 @@ module Scenes
       case @battle.state
       when :battle_start
         args.audio[:bgm] = {
-          input: 'music/they_be_angry.mp3'
+          input: 'music/they_be_angry.mp3',
+          gain: 0.3
         }
         queue_message("#{opponent.trainer[:name]} wants to battle!")
         player.emojimon = build_emojimon player.trainer[:emojimons].first
@@ -290,12 +291,14 @@ module Scenes
     def queue_player_attack_animation(tick: @tick_count + 1)
       duration = 20
       Cutscene.schedule_element @battle.cutscene, tick: tick, type: :shake, target: @battle.opponent.sprite, duration: duration
+      Cutscene.schedule_element @battle.cutscene, tick: tick, type: :play_sfx, path: 'sfx/hit.wav', duration: 1
       tick + duration
     end
 
     def queue_opponent_attack_animation(tick: @tick_count + 1)
       duration = 20
       Cutscene.schedule_element @battle.cutscene, tick: tick, type: :shake, target: @battle.player.sprite, duration: duration
+      Cutscene.schedule_element @battle.cutscene, tick: tick, type: :play_sfx, path: 'sfx/hit.wav', duration: 1
       tick + duration
     end
 
@@ -418,6 +421,13 @@ module Scenes
         0, element[:duration],
         255, 0
       ).floor
+    end
+
+    def play_sfx_tick(_args, element)
+      $gtk.args.audio[:sfx] = {
+        input: element[:path],
+        looping: false
+      }
     end
   end
 end
