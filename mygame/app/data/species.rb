@@ -71,6 +71,7 @@ SPECIES = {
     ),
     back_sprite: YELLOW_BACK_SPRITE,
     type: :sassy,
+    max_hp: 26,
     attacks: [:wink]
   },
   upside_down: {
@@ -549,6 +550,7 @@ SPECIES = {
     ),
     back_sprite: RED_BACK_SPRITE,
     type: :salty,
+    max_hp: 26,
     attacks: [:glare]
   },
   angrier: {
