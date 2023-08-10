@@ -19,12 +19,7 @@ module Scenes
       opponent.sprite = nil
       opponent.selected_action = nil
 
-      message_window = battle.message_window = args.state.new_entity(:message_window)
-      message_window.active = false
-      message_window.queued_messages = []
-      message_window.line0_letters = []
-      message_window.line1_letters = []
-      message_window.waiting_for_advance_message_since = nil
+      @message_window = MessageWindow.new
 
       battle.cutscene = Cutscene.build_empty
       battle.state = :battle_start
@@ -36,12 +31,12 @@ module Scenes
       @battle = args.state.battle
       @tick_count = args.tick_count
 
-      cutscene_running = !Cutscene.finished?(@battle.cutscene)
-      Cutscene.tick args, @battle.cutscene, handler: self if cutscene_running
+      cutscene_was_running = !Cutscene.finished?(@battle.cutscene)
+      Cutscene.tick args, @battle.cutscene, handler: self if cutscene_was_running
 
-      message_window_active = @battle.message_window.active || @battle.message_window.queued_messages.any?
-      update_message_window(args) if message_window_active
-      return if cutscene_running || message_window_active
+      message_window_was_active = @message_window.active?
+      @message_window.update(args) if message_window_was_active
+      return if cutscene_was_running || message_window_was_active
 
       player = @battle.player
       opponent = @battle.opponent
@@ -137,29 +132,6 @@ module Scenes
 
     private
 
-    def update_message_window(args)
-      message_window = @battle.message_window
-      if message_window.active
-        return unless message_window.waiting_for_advance_message_since
-
-        if Controls.confirm?(args.inputs)
-          message_window.active = false
-          message_window.waiting_for_advance_message_since = nil
-          message_window.line0_letters.clear
-          message_window.line1_letters.clear
-        end
-      else
-        next_message_lines = message_window.queued_messages.shift
-        tick = @tick_count + 1
-        next_message_lines.each_with_index do |line, index|
-          duration = line.size * 2
-          Cutscene.schedule_element @battle.cutscene, tick: tick, type: :message, duration: duration, line: line, line_index: index
-          tick += duration
-        end
-        Cutscene.schedule_element @battle.cutscene, tick: tick, type: :wait_for_advance_message, duration: 1
-      end
-    end
-
     def still_has_emojimon?(combatant)
       combatant.trainer[:emojimons].any? { |emojimon| emojimon[:hp].positive? }
     end
@@ -198,25 +170,11 @@ module Scenes
         x: 0, y: 0, w: 64, h: 18, path: :pixel
       }.sprite!(Palette::WINDOW_BG_COLOR)
 
-      if @battle.message_window.active
-        render_message_window(screen)
+      if @message_window.active?
+        @message_window.render(screen)
       elsif @battle.state == :player_chooses_action
         render_action_menu(screen)
       end
-    end
-
-    def render_message_window(screen)
-      message_window = @battle.message_window
-      screen.primitives << message_window.line0_letters
-      screen.primitives << message_window.line1_letters
-
-      return unless message_window.waiting_for_advance_message_since
-      return unless (@tick_count - message_window.waiting_for_advance_message_since) % 60 < 30
-
-      screen.primitives << {
-        x: 28, y: 0, w: 9, h: 3, path: 'sprites/message_wait_triangle.png',
-        r: 0, g: 0, b: 0
-      }.sprite!
     end
 
     def render_action_menu(screen)
@@ -227,10 +185,8 @@ module Scenes
       end
     end
 
-    def queue_message(message_string, tick: @tick_count + 1)
-      lines = @font.split_into_lines(message_string, line_w: 62)
-      @battle.message_window.queued_messages.concat lines.each_slice(2).to_a
-      tick + 1
+    def queue_message(message, tick: @tick_count + 1)
+      Cutscene.schedule_element @battle.cutscene, tick: tick, type: :queue_message, message: message, duration: 1
     end
 
     def queue_opponent_emojimon_appearance(tick: @tick_count + 1)
@@ -346,23 +302,8 @@ module Scenes
       Cutscene.schedule_element @battle.cutscene, tick: tick, type: :play_sfx, id: :death, duration: 1
     end
 
-    def message_tick(_args, message_element)
-      message_window = @battle.message_window
-      message_window.active = true
-      if message_element[:line_index].zero?
-        y = 11
-        letters_array = message_window.line0_letters
-      else
-        y = 3
-        letters_array = message_window.line1_letters
-      end
-      letters_array.clear
-      char_index = message_element[:elapsed_ticks].idiv 2
-      letters_array.concat @font.build_label(text: message_element[:line][0..char_index], x: 1, y: y)
-    end
-
-    def wait_for_advance_message_tick(_args, _element)
-      @battle.message_window.waiting_for_advance_message_since = @tick_count
+    def queue_message_tick(_args, element)
+      @message_window.queue_message element[:message]
     end
 
     def opponent_emojimon_appears_tick(_args, element)
