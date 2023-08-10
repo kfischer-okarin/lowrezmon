@@ -21,8 +21,10 @@
   - [ ] Menu with all unlocked Emojimon
   - [ ] Show selected Emojimons data on the screen
   - [ ] Choose 3 Emojimon for your team
-
+  - [ ] Canceling unselects the last emojimon
 
 ## Nice to have
+- [ ] Title Screen?
+- [ ] Add more Emojimon to the roster
 - [ ] Validate Game Data utility method
   - [ ] Check that name is short enough to be rendered
