@@ -2,7 +2,7 @@
 
 - [ ] Battle System Necessary Features
   - [ ] Select/Change Emojimon Screen
-    - [ ] Menu Navigation between emojimon
+    - [x] Menu Navigation between emojimon
     - [ ] Confirm send
     - [ ] Select will change Emojimon, opponent goes last
     - [ ] Cancel will return to action menu
