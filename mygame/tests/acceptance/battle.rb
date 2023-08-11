@@ -6,8 +6,7 @@ def test_battle_start(args, assert)
       player_trainer: {
         name: 'GREEN',
         emojimons: [
-          { species: :winking, hp: 26 },
-          { species: :angry, hp: 26 }
+          { species: :winking, hp: 26 }
         ]
       },
       opponent_trainer: {
@@ -28,8 +27,61 @@ def test_battle_start(args, assert)
 
     expect_message 'Winking uses Wink!'
     expect_message 'Angry uses Glare!'
+  end
+end
 
-    # choose_action :exchange
+def test_battle_win(args, assert)
+  BattleTest.new(args, assert) do
+    start_battle(
+      player_trainer: {
+        name: 'GREEN',
+        emojimons: [
+          { species: :winking, hp: 26 }
+        ]
+      },
+      opponent_trainer: {
+        name: 'VIOLA',
+        emojimons: [
+          { species: :angry, hp: 1 }
+        ]
+      }
+    )
+
+    advance_until_action_menu
+
+    choose_action :wink
+
+    expect_message 'Winking uses Wink!'
+    expect_message 'Angry disintegrates!'
+    expect_message 'VIOLA is defeated!'
+  end
+end
+
+def test_battle_lose(args, assert)
+  BattleTest.new(args, assert) do
+    start_battle(
+      player_trainer: {
+        name: 'GREEN',
+        emojimons: [
+          { species: :winking, hp: 1 }
+        ]
+      },
+      opponent_trainer: {
+        name: 'VIOLA',
+        emojimons: [
+          { species: :angry, hp: 26 }
+        ]
+      }
+    )
+
+    advance_until_action_menu
+
+    choose_action :wink
+
+    expect_message 'Winking uses Wink!'
+    expect_message 'Angry uses Glare!'
+    expect_message 'Winking disintegrates!'
+    expect_message 'You were defeated!'
   end
 end
 
@@ -91,14 +143,9 @@ class BattleTest
 
   def wait_for_message(max_ticks = 1000)
     ticks = 0
-    loop do
+    safe_loop error_message_on_timeout: 'No finished message' do
       @simulator.tick
       break if @simulator.rendered_sprites.find { |sprite| sprite.path == 'sprites/message_wait_triangle.png' }
-
-      ticks += 1
-      if ticks >= max_ticks
-        raise "State: #{@args.state}.\n\nNo finished message after 1000 ticks."
-      end
     end
 
     @simulator.wait_a_bit
@@ -106,6 +153,16 @@ class BattleTest
 
   def advance_message
     @simulator.press_key :space
+  end
+
+  def advance_until_action_menu
+    safe_loop error_message_on_timeout: 'No action menu' do
+      wait_for_message
+      advance_message
+      break if actions.any?
+    end
+
+    @simulator.wait_a_bit
   end
 
   def choose_action(action)
@@ -184,5 +241,17 @@ class BattleTest
     ATTACKS.keys.find { |attack|
       ATTACKS[attack][:sprite][:path] == action_icon[:path]
     }
+  end
+
+  def safe_loop(error_message_on_timeout:, max_ticks: 1000)
+    ticks = 0
+    loop do
+      yield
+
+      ticks += 1
+      if ticks >= max_ticks
+        raise "State: #{@args.state}.\n\n#{error_message_on_timeout} after 1000 ticks."
+      end
+    end
   end
 end
