@@ -3,11 +3,13 @@
 - [ ] Battle System Necessary Features
   - [ ] Select/Change Emojimon Screen
     - [x] Menu Navigation between emojimon
-    - [ ] Confirm send
-    - [ ] Select will change Emojimon, opponent goes last
-    - [ ] Cancel will return to action menu
-    - [ ] After own emojimon death, no cancel is allowed
-    - [ ] Select will send Emojimon, next turn starts
+    - [x] Confirm send
+    - [x] Select will change Emojimon, opponent goes last
+    - [x] Cancel will return to action menu
+    - [x] After own emojimon death, no cancel is allowed
+    - [x] Select will send Emojimon, next turn starts
+    - [ ] No dead emojimon can be selected
+    - [ ] Show no choice if only 1 alive emojimon left
   - [ ] Use ATK & DEF for determining damage
   - [ ] Use SPD to determine turn order
     - Same Rank = random order

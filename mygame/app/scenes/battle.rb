@@ -68,16 +68,22 @@ module Scenes
         end
         if Controls.confirm?(args.inputs)
           SFX.play args, :confirm
+          if @action_menu.selected_child[:action][:type] == :select_emojimon
+            @battle.state = :player_chooses_emojimon
+            return
+          end
+
           player.selected_action = @action_menu.selected_child[:action]
-          opponent.selected_action = BattleSystem.choose_opponent_action(opponent, player)
-          @battle.turn_order = BattleSystem.determine_turn_order(player, opponent)
-          queue_next_turn_resolution
-          @battle.queued_states_after_messages = [:other_turn] if @battle.queued_states_after_messages.empty?
-          @battle.state = :go_to_next_state_after_messages
+          @battle.state = :first_turn
         end
-      when :other_turn
+      when :first_turn
+        opponent.selected_action = BattleSystem.choose_opponent_action(opponent, player)
+        @battle.turn_order = BattleSystem.determine_turn_order(player, opponent)
+
         queue_next_turn_resolution
-        @battle.queued_states_after_messages = [:player_chooses_action] if @battle.queued_states_after_messages.empty?
+        @battle.state = :go_to_next_state_after_messages
+      when :second_turn
+        queue_next_turn_resolution
         @battle.state = :go_to_next_state_after_messages
       when :opponent_emojimon_dead
         queue_message("#{opponent.emojimon[:name]} disintegrates!")
@@ -95,7 +101,27 @@ module Scenes
         @battle.queued_states_after_messages = still_has_emojimon?(player) ? [:player_chooses_emojimon] : [:battle_lost]
         @battle.state = :go_to_next_state_after_messages
       when :player_chooses_emojimon
-        # TODO
+        @select_emojimon_scene = Scenes::SelectEmojimon.new(
+          args,
+          battle_scene: self,
+          player_trainer: player.trainer,
+          current_emojimon: player.emojimon[:trainer_emojimon]
+        )
+        $next_scene = @select_emojimon_scene
+        @battle.state = :after_select_emojimon
+      when :after_select_emojimon
+        if @select_emojimon_scene.chosen_emojimon
+          if player.emojimon[:hp].zero?
+            player.emojimon = build_emojimon @select_emojimon_scene.chosen_emojimon
+            @battle.state = :player_sends_emojimon
+            @battle.queued_states_after_messages = [:player_chooses_action]
+          else
+            player.selected_action = { type: :exchange, new_emojimon: @select_emojimon_scene.chosen_emojimon }
+            @battle.state = :first_turn
+          end
+        else
+          @battle.state = :player_chooses_action
+        end
       when :battle_won
         queue_message("#{opponent.trainer[:name]} is defeated!")
         # @previous_scene.battle_won
@@ -153,7 +179,7 @@ module Scenes
         }
       }
       options << {
-        action: { type: :exchange },
+        action: { type: :select_emojimon },
         sprite: { path: 'sprites/icons/exchange.png' },
         rect: { x: 48, y: 2, w: 14, h: 14 }
       }
@@ -208,6 +234,7 @@ module Scenes
       opponent = @battle.opponent
       opponent_emojimon = @battle.opponent.emojimon
       after_finished_tick = nil
+      @battle.queued_states_after_messages = @battle.state == :first_turn ? [:second_turn] : [:player_chooses_action]
       case combatant
       when :player
         action = player.selected_action
@@ -222,7 +249,10 @@ module Scenes
           after_finished_tick = queue_effectiveness_message(damage, tick: after_finished_tick)
           @battle.queued_states_after_messages = [:opponent_emojimon_dead] if target_hp.zero?
         when :exchange
-          @battle.state = :player_chooses_action # TODO: Implemennt
+          queue_message("Come back, #{player_emojimon[:name]}!", tick: tick)
+          queue_player_emojimon_retreat
+          player.emojimon = build_emojimon action[:new_emojimon]
+          @battle.queued_states_after_messages.unshift(:player_sends_emojimon)
         end
         player.selected_action = nil
       when :opponent
@@ -300,6 +330,15 @@ module Scenes
                                 sprite: @battle.player.sprite,
                                 duration: 60
       Cutscene.schedule_element @battle.cutscene, tick: tick, type: :play_sfx, id: :death, duration: 1
+    end
+
+    def queue_player_emojimon_retreat(tick: @tick_count + 1)
+      Cutscene.schedule_element @battle.cutscene,
+                                tick: tick,
+                                type: :emojimon_retreat,
+                                dx: -30,
+                                sprite: @battle.player.sprite,
+                                duration: 20
     end
 
     def queue_message_tick(_args, element)
@@ -384,6 +423,18 @@ module Scenes
         0, element[:duration],
         255, 0
       ).floor
+    end
+
+    def emojimon_retreat_tick(_args, element)
+      sprite = element[:sprite]
+      element[:original_x] ||= sprite[:x]
+      sprite[:x] = element[:elapsed_ticks].remap(
+        0, element[:duration],
+        element[:original_x],  element[:original_x] + element[:dx]
+      ).floor
+      if element[:elapsed_ticks] == element[:duration] - 1
+        sprite[:a] = 0
+      end
     end
 
     def play_sfx_tick(args, element)

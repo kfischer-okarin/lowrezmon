@@ -12,7 +12,12 @@ module BattleSystem
       alive_emojimon.sample
     end
 
-    def determine_turn_order(_player, _opponent)
+    def determine_turn_order(player, opponent)
+      if player.selected_action[:type] == :exchange && opponent.selected_action[:type] != :exchange
+        return [:player, :opponent]
+      end
+
+      # TODO Use Speed
       [:player, :opponent]
     end
 

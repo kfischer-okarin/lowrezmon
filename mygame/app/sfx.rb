@@ -1,6 +1,9 @@
 module SFX
   class << self
     SOUNDS = {
+      cancel: {
+        input: 'sfx/cancel.wav',
+      },
       confirm: {
         input: 'sfx/select.wav',
       },
