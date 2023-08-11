@@ -14,6 +14,16 @@ class MessageWindow
     @queued_messages.concat convert_to_line_letters(message_string)
   end
 
+  def display_message(message_string)
+    @rendered_letters = convert_to_line_letters(message_string).first
+    @state = { type: :just_diplay_message }
+  end
+
+  def clear_message
+    @rendered_letters = [[], []]
+    @state = { type: :inactive }
+  end
+
   def update(args)
     if @state[:type] == :inactive
       return unless @queued_messages.any?
@@ -50,8 +60,7 @@ class MessageWindow
       @state[:elapsed_ticks] += 1
     when :waiting_for_advance_message
       if Controls.confirm?(args.inputs)
-        @rendered_letters = [[], []]
-        @state = { type: :inactive }
+        clear_message
         return
       end
       @state[:elapsed_ticks] += 1
