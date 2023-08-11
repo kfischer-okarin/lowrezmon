@@ -10,6 +10,7 @@ require 'app/message_window.rb'
 require 'app/palette.rb'
 require 'app/scenes/battle.rb'
 require 'app/scenes/debug_screen.rb'
+require 'app/scenes/select_emojimon.rb'
 require 'app/sfx.rb'
 require 'app/ui.rb'
 
