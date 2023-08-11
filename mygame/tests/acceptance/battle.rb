@@ -157,9 +157,7 @@ class BattleTest
     opponent_sprite = @simulator.rendered_sprites.find { |sprite|
       sprite.y > 32 && sprite.path == 'sprites/emojis.png'
     }
-    species = SPECIES.keys.find { |species|
-      opponent_sprite.slice(:tile_x, :tile_y) == SPECIES[species][:sprite].slice(:tile_x, :tile_y)
-    }
+    species = species_of_emojimon_sprite opponent_sprite
 
     @assert.equal! species, expected_species
   end
@@ -202,9 +200,11 @@ class BattleTest
     @simulator.wait_a_bit
   end
 
-  def choose_action(action)
+  def choose_action(chosen_action)
+    raise "No action #{chosen_action}" unless actions.any? { |action| action[:action] == chosen_action }
+
     loop do
-      break if selected_action[:action] == action
+      break if selected_action[:action] == chosen_action
 
       @simulator.press_key :right
     end
@@ -278,6 +278,12 @@ class BattleTest
 
     ATTACKS.keys.find { |attack|
       ATTACKS[attack][:sprite][:path] == action_icon[:path]
+    }
+  end
+
+  def species_of_emojimon_sprite(emojimon_sprite)
+    SPECIES.keys.find { |species|
+      emojimon_sprite.slice(:tile_x, :tile_y) == SPECIES[species][:sprite].slice(:tile_x, :tile_y)
     }
   end
 
