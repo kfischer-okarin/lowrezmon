@@ -205,6 +205,7 @@ class BattleTest
   def choose_action(action)
     loop do
       break if selected_action[:action] == action
+
       @simulator.press_key :right
     end
 
