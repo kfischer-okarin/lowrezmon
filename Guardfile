@@ -28,7 +28,7 @@ def determine_test_path(path)
 end
 
 def run_all
-  run_dragonruby_tests(APP_ROOT / 'tests/main.rb')
+  system './run-tests'
 end
 
 def run_dragonruby_tests(path)
