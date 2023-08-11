@@ -57,6 +57,34 @@ def test_battle_win(args, assert)
   end
 end
 
+def test_battle_next_opponent_emojimon(args, assert)
+  BattleTest.new(args, assert) do
+    start_battle(
+      player_trainer: {
+        name: 'GREEN',
+        emojimons: [
+          { species: :winking, hp: 26 }
+        ]
+      },
+      opponent_trainer: {
+        name: 'VIOLA',
+        emojimons: [
+          { species: :angry, hp: 1 },
+          { species: :winking, hp: 26 }
+        ]
+      }
+    )
+
+    advance_until_action_menu
+
+    choose_action :wink
+
+    expect_message 'Winking uses Wink!'
+    expect_message 'Angry disintegrates!'
+    expect_message 'VIOLA sends Winking!'
+  end
+end
+
 def test_battle_lose(args, assert)
   BattleTest.new(args, assert) do
     start_battle(
