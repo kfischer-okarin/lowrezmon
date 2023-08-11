@@ -87,7 +87,7 @@ class MessageWindow
       result = [
         @font.build_label(text: line_pair[0], x: 1, y: 11),
       ]
-      result << @font.build_label(text: line_pair[1], x: 1, y: 3) if lines[1]
+      result << @font.build_label(text: line_pair[1], x: 1, y: 3) if line_pair[1]
       result
     }
   end
