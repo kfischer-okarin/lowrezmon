@@ -25,7 +25,10 @@ def tick(args)
   setup(args) if args.tick_count.zero?
   update(args)
   render(args)
-  $scene = $next_scene if $next_scene
+  if $next_scene
+    $scene = $next_scene
+    $next_scene = nil
+  end
 end
 
 def setup(args)

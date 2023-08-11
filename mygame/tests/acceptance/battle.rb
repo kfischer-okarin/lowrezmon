@@ -135,7 +135,10 @@ class BattleTest
       tick: lambda { |args|
         $scene.update(args)
         $scene.render(args.outputs, args.state)
-        $scene = $next_scene if $next_scene
+        if $next_scene
+          $scene = $next_scene
+          $next_scene = nil
+        end
       }
     )
   end
