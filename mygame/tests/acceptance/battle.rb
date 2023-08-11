@@ -22,6 +22,7 @@ def test_battle_start(args, assert)
     expect_opponent_emojimon :angry
     expect_message 'Go, Winking!'
     expect_player_emojimon :winking
+    expect_action_menu
 
     choose_action :wink
 
@@ -82,6 +83,8 @@ def test_battle_next_opponent_emojimon(args, assert)
     expect_message 'Winking uses Wink!'
     expect_message 'Angry disintegrates!'
     expect_message 'VIOLA sends Winking!'
+    expect_opponent_emojimon :winking
+    expect_action_menu
   end
 end
 
@@ -117,7 +120,7 @@ class BattleTest
   def initialize(args, assert, &block)
     @args = args
     @assert = assert
-    @scene = nil
+    $scene = nil
     instance_eval(&block)
   end
 
@@ -169,8 +172,11 @@ class BattleTest
     @assert.equal! species, expected_species
   end
 
-  def wait_for_message(max_ticks = 1000)
-    ticks = 0
+  def expect_action_menu
+    @assert.true! actions.any?, 'Action is not displayed'
+  end
+
+  def wait_for_message
     safe_loop error_message_on_timeout: 'No finished message' do
       @simulator.tick
       break if @simulator.rendered_sprites.find { |sprite| sprite.path == 'sprites/message_wait_triangle.png' }
