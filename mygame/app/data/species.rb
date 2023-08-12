@@ -36,6 +36,31 @@ BLUE_BACK_SPRITE = EMOJI_BACK_BASE_SPRITE.merge(
 ).freeze
 
 SPECIES = {
+  winking: {
+    name: "Winking",
+    sprite: EMOJI_BASE_SPRITE.merge(
+      tile_x: 48,
+      tile_y: 0
+    ),
+    back_sprite: YELLOW_BACK_SPRITE,
+    type: :sassy,
+    max_hp: 26,
+    attacks: [:wink]
+  },
+  angry: {
+    name: "Angry",
+    sprite: EMOJI_BASE_SPRITE.merge(
+      tile_x: 0,
+      tile_y: 112
+    ),
+    back_sprite: RED_BACK_SPRITE,
+    type: :salty,
+    max_hp: 26,
+    attacks: [:glare]
+  }
+}
+
+RESERVE_SPECIES = {
   slightly_smiling: {
     name: "Slightly Smiling",
     sprite: EMOJI_BASE_SPRITE.merge(
@@ -62,17 +87,6 @@ SPECIES = {
     ),
     back_sprite: YELLOW_BACK_SPRITE,
     type: :sassy
-  },
-  winking: {
-    name: "Winking",
-    sprite: EMOJI_BASE_SPRITE.merge(
-      tile_x: 48,
-      tile_y: 0
-    ),
-    back_sprite: YELLOW_BACK_SPRITE,
-    type: :sassy,
-    max_hp: 26,
-    attacks: [:wink]
   },
   upside_down: {
     name: "Upside Down",
@@ -541,17 +555,6 @@ SPECIES = {
     ),
     back_sprite: YELLOW_BACK_SPRITE,
     type: :sassy
-  },
-  angry: {
-    name: "Angry",
-    sprite: EMOJI_BASE_SPRITE.merge(
-      tile_x: 0,
-      tile_y: 112
-    ),
-    back_sprite: RED_BACK_SPRITE,
-    type: :salty,
-    max_hp: 26,
-    attacks: [:glare]
   },
   angrier: {
     name: "Angrier",
