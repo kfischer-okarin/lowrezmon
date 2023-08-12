@@ -193,7 +193,14 @@ class BattleTest
   def expect_message(expected_message)
     wait_for_message
 
-    @assert.equal! letters_in_rect(x: 0, y: 0, w: 64, h: 18).join, expected_message
+    window_rect = { x: 0, y: 0, w: 64, h: 18 }
+    window_background_index = @simulator.rendered_sprites.find_index { |sprite|
+      sprite.slice(:x, :y, :w, :h) == window_rect &&
+        sprite.slice(:r, :g, :b) == Palette::WINDOW_BG_COLOR
+    }
+    sprites_above_window_background = @simulator.rendered_sprites[0..window_background_index]
+
+    @assert.equal! letters_in_rect(window_rect, sprites: sprites_above_window_background).join, expected_message
 
     advance_message
   end
@@ -285,12 +292,13 @@ class BattleTest
 
   private
 
-  def letters_on_screen
-    letters_in_rect x: 0, y: 0, w: 64, h: 64
+  def letters_on_screen(sprites: nil)
+    letters_in_rect({ x: 0, y: 0, w: 64, h: 64 }, sprites: sprites)
   end
 
-  def letters_in_rect(rect)
-    letter_sprites = @simulator.rendered_sprites.select { |sprite|
+  def letters_in_rect(rect, sprites: nil)
+    sprites ||= @simulator.rendered_sprites
+    letter_sprites = sprites.select { |sprite|
       sprite.path.include?('pokemini.png') && sprite.inside_rect?(rect)
     }
     letter_sprites.sort! { |sprite1, sprite2|
@@ -355,6 +363,8 @@ class BattleTest
   end
 
   def emojimons
+    return [] unless in_select_emojimon_menu?
+
     emojimon_sprites = @simulator.rendered_sprites.select { |sprite|
       sprite.path == 'sprites/emojis.png'
     }
