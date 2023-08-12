@@ -47,7 +47,10 @@ SPECIES = {
     back_sprite: YELLOW_BACK_SPRITE,
     type: :sassy,
     max_hp: 26,
-    attacks: [:wink]
+    attacks: [:wink],
+    attack: 3,
+    defense: 2,
+    speed: 4
   },
   angry: {
     name: "Angry",
@@ -58,8 +61,39 @@ SPECIES = {
     back_sprite: RED_BACK_SPRITE,
     type: :salty,
     max_hp: 26,
-    attacks: [:glare]
-  }
+    attacks: [:glare],
+    attack: 4,
+    defense: 3,
+    speed: 2
+  },
+  upside: {
+    name: "Upside",
+    sprite: EMOJI_BASE_SPRITE.merge(
+      tile_x: 64,
+      tile_y: 0
+    ),
+    back_sprite: YELLOW_BACK_SPRITE,
+    type: :silly,
+    max_hp: 26,
+    attacks: [:flip],
+    attack: 2,
+    defense: 4,
+    speed: 3
+  },
+  kissy: {
+    name: "Kissy",
+    sprite: EMOJI_BASE_SPRITE.merge(
+      tile_x: 48,
+      tile_y: 32
+    ),
+    back_sprite: YELLOW_BACK_SPRITE,
+    type: :sexy,
+    max_hp: 26,
+    attacks: [:smooch],
+    attack: 4,
+    defense: 1,
+    speed: 4
+  },
 }
 
 RESERVE_SPECIES = {
@@ -89,15 +123,6 @@ RESERVE_SPECIES = {
     ),
     back_sprite: YELLOW_BACK_SPRITE,
     type: :sassy
-  },
-  upside_down: {
-    name: "Upside Down",
-    sprite: EMOJI_BASE_SPRITE.merge(
-      tile_x: 64,
-      tile_y: 0
-    ),
-    back_sprite: YELLOW_BACK_SPRITE,
-    type: :silly
   },
   smiling_eyes: {
     name: "Smiling Eyes",
@@ -220,15 +245,6 @@ RESERVE_SPECIES = {
     name: "Kissing Hearty Eyes",
     sprite: EMOJI_BASE_SPRITE.merge(
       tile_x: 32,
-      tile_y: 32
-    ),
-    back_sprite: YELLOW_BACK_SPRITE,
-    type: :sexy
-  },
-  kiss_blower: {
-    name: "Kiss Blower",
-    sprite: EMOJI_BASE_SPRITE.merge(
-      tile_x: 48,
       tile_y: 32
     ),
     back_sprite: YELLOW_BACK_SPRITE,
@@ -630,7 +646,7 @@ def validate_species
     if font.string_w(definition[:name]) > 31
       problems << { type: :name_too_long, length: font.string_w(definition[:name]) }
     end
-    missing_keys = definition.keys - [:name, :sprite, :back_sprite, :type, :max_hp, :attacks]
+    missing_keys = definition.keys - [:name, :sprite, :back_sprite, :type, :max_hp, :attacks, :attack, :defense, :speed]
     if missing_keys.any?
       problems << { type: :missing_keys, keys: missing_keys }
     end

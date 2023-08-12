@@ -38,8 +38,7 @@ def setup(args)
     player_trainer: {
       name: 'GREEN',
       emojimons: [
-        { species: :winking, hp: 26 },
-        { species: :angry, hp: 26 }
+        { species: :kissy, hp: 26 }
       ]
     },
     opponent_trainer: {
