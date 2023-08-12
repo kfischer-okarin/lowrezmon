@@ -41,13 +41,29 @@ class DRSimulator
 
   def rendered_sprites
     sprite_primitives = @args.outputs.primitives.select { |primitive|
-      primitive.respond_to?(:path) || primitive.respond_to?(:draw_override)
+      is_a_sprite?(primitive) || primitive.respond_to?(:draw_override)
     }
     (sprite_primitives + @args.outputs.sprites)
       .flatten
       .map { |primitive| evaluate_draw_override(primitive) }
       .flatten # Need to flatten again because draw_override might render multiple primitives
-      .select { |primitive| primitive.respond_to?(:path) } # draw_override might return other primitives
+      .select { |primitive| is_a_sprite?(primitive) } # draw_override might return other primitives
+      .reverse # Reverse to get the top-most primitives first
+  end
+
+  def is_a_sprite?(primitive)
+    primitive.respond_to?(:path) && primitive.path
+  end
+
+  def rendered_borders
+    border_primitives = @args.outputs.primitives.select { |primitive|
+      primitive.primitive_marker == :border || primitive.respond_to?(:draw_override)
+    }
+    (border_primitives + @args.outputs.borders)
+      .flatten
+      .map { |primitive| evaluate_draw_override(primitive) }
+      .flatten # Need to flatten again because draw_override might render multiple primitives
+      .select { |primitive| primitive.primitive_marker == :border } # draw_override might return other primitives
       .reverse # Reverse to get the top-most primitives first
   end
 
@@ -109,6 +125,13 @@ class DRSimulator
 
     def initialize
       @primitives = []
+    end
+
+    def draw_border_3(x, y, w, h, r, g, b, a, blendmode_enum, anchor_x, anchor_y)
+      @primitives << {
+        x: x, y: y, w: w, h: h, r: r, g: g, b: b, a: a,
+        blendmode_enum: blendmode_enum, anchor_x: anchor_x, anchor_y: anchor_y
+      }.border!
     end
 
     def draw_label_5(x, y, text, size_enum, alignment_enum, r, g, b, a, font, vertical_alignment_enum, blendmode_enum, size_px, anchor_x, anchor_y)

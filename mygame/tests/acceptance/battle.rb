@@ -116,6 +116,47 @@ def test_battle_lose(args, assert)
   end
 end
 
+def test_battle_change_emojimon(args, assert)
+  BattleTest.new(args, assert) do
+    start_battle(
+      player_trainer: {
+        name: 'GREEN',
+        emojimons: [
+          { species: :winking, hp: 26 },
+          { species: :angry, hp: 26 }
+        ]
+      },
+      opponent_trainer: {
+        name: 'VIOLA',
+        emojimons: [
+          { species: :angry, hp: 26 }
+        ]
+      }
+    )
+
+    advance_until_action_menu
+    choose_action :exchange
+
+    expect_emojimons [
+      { species: :winking, in_battle: true, selected: true },
+      { species: :angry, in_battle: false, selected: false }
+    ]
+
+    select_emojimon_at_index 0
+
+    expect_message 'Already in battle!'
+
+    select_emojimon_at_index 1
+
+    expect_message 'Come back, Winking!'
+    expect_message 'Go, Angry!'
+    expect_player_emojimon :angry
+    expect_message 'Angry uses Glare!'
+    expect_message "It's mega effective!"
+    expect_action_menu
+  end
+end
+
 class BattleTest
   def initialize(args, assert, &block)
     @args = args
@@ -177,6 +218,10 @@ class BattleTest
     @assert.true! actions.any?, 'Action is not displayed'
   end
 
+  def expect_emojimons(expected_emojimons)
+    @assert.equal! emojimons, expected_emojimons
+  end
+
   def wait_for_message
     safe_loop error_message_on_timeout: 'No finished message' do
       @simulator.tick
@@ -212,7 +257,26 @@ class BattleTest
     @simulator.press_key :space
   end
 
+  def select_emojimon_at_index(index)
+    raise "No emojimon at index #{index}" unless emojimons[index]
+
+    loop do
+      break if emojimons[index][:selected]
+
+      @simulator.press_key :down
+    end
+
+    @simulator.press_key :space
+
+    all_letters = letters_on_screen.join
+    @simulator.press_key :space if all_letters.include?('Yes') && all_letters.include?('No')
+  end
+
   private
+
+  def letters_on_screen
+    letters_in_rect x: 0, y: 0, w: 64, h: 64
+  end
 
   def letters_in_rect(rect)
     letter_sprites = @simulator.rendered_sprites.select { |sprite|
@@ -273,6 +337,27 @@ class BattleTest
     }
   end
 
+  def emojimons
+    emojimon_sprites = @simulator.rendered_sprites.select { |sprite|
+      sprite.path == 'sprites/emojis.png'
+    }
+    sort_from_top_to_bottom! emojimon_sprites
+    in_battle_marker = @simulator.rendered_borders.find { |border|
+      border.slice(:r, :g, :b) == Palette::CURRENT_EMOJIMON_COLOR
+    }
+    selected_emojimon_marker = @simulator.rendered_sprites.find { |sprite|
+      sprite.path == :pixel && sprite.slice(:r, :g, :b) == Palette::SELECTED_COLOR
+    }
+
+    emojimon_sprites.map { |sprite|
+      {
+        species: species_of_emojimon_sprite(sprite),
+        in_battle: sprite.inside_rect?(in_battle_marker),
+        selected: sprite.inside_rect?(selected_emojimon_marker)
+      }
+    }
+  end
+
   def action_of_icon(action_icon)
     return :exchange if action_icon.path == 'sprites/icons/exchange.png'
 
@@ -297,5 +382,9 @@ class BattleTest
         raise "State: #{@args.state}.\n\n#{error_message_on_timeout} after 1000 ticks."
       end
     end
+  end
+
+  def sort_from_top_to_bottom!(sprites)
+    sprites.sort! { |sprite1, sprite2| -sprite1.y <=> -sprite2.y }
   end
 end
