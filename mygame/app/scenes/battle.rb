@@ -160,7 +160,7 @@ module Scenes
       player = @battle.player
       screen.primitives << player.sprite
       if @battle.player_stats_visible
-        UI.render_stats_display(screen, player.emojimon, x: 34, y: 20, with_hp_numbers: true)
+        UI.render_stats_display(screen, player.emojimon, x: 32, y: 20, with_hp_numbers: true)
       end
       render_window(screen)
     end
