@@ -635,10 +635,12 @@ def validate_species
       problems << { type: :missing_keys, keys: missing_keys }
     end
     if definition[:attacks]
-      if definition[:attacks].any? { |attack| !ATTACKS.key?(attack) }
-        problems << { type: :unknown_attack, attack: attack }
+      unknown_attacks = definition[:attacks] - ATTACKS.keys
+      if unknown_attacks.any?
+        problems << { type: :unknown_attacks, attacks: unknown_attacks }
       end
-      if definition[:attacks].none? { |attack| ATTACKS[attack][:type] == definition[:type] }
+      known_attacks = definition[:attacks] - unknown_attacks
+      if known_attacks.none? { |attack| ATTACKS[attack][:type] == definition[:type] }
         problems << { type: :no_attack_of_own_type }
       end
     end
@@ -649,8 +651,8 @@ def validate_species
         case problem[:type]
         when :name_too_long
           puts "- name \"#{definition[:name]}\" is too long (#{problem[:length]}px > 31px)"
-        when :unknown_attack
-          puts "- unknown attack #{problem[:attack].inspect}"
+        when :unknown_attacks
+          puts "- unknown attacks: #{problem[:attacks].inspect}"
         when :no_attack_of_own_type
           puts '- no attack of own type'
         when :missing_keys
