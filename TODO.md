@@ -28,5 +28,5 @@
 ## Nice to have
 - [ ] Title Screen?
 - [ ] Add more Emojimon to the roster
-- [ ] Validate Game Data utility method
-  - [ ] Check that name is short enough to be rendered
+- [x] Validate Game Data utility method
+  - [x] Check that name is short enough to be rendered
