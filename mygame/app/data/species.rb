@@ -630,6 +630,10 @@ def validate_species
     if font.string_w(definition[:name]) > 31
       problems << { type: :name_too_long, length: font.string_w(definition[:name]) }
     end
+    missing_keys = definition.keys - [:name, :sprite, :back_sprite, :type, :max_hp, :attacks]
+    if missing_keys.any?
+      problems << { type: :missing_keys, keys: missing_keys }
+    end
     if definition[:attacks].any? { |attack| !ATTACKS.key?(attack) }
       problems << { type: :unknown_attack, attack: attack }
     end
@@ -647,6 +651,8 @@ def validate_species
           puts "- unknown attack #{problem[:attack].inspect}"
         when :no_attack_of_own_type
           puts '- no attack of own type'
+        when :missing_keys
+          puts "- missing keys #{problem[:keys].inspect}"
         end
       end
     end
