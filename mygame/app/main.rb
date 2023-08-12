@@ -4,7 +4,6 @@ require 'lib/menu_navigation.rb'
 require 'lib/spritesheet_font.rb'
 require 'app/battle_system.rb'
 require 'app/controls.rb'
-require 'app/data.rb'
 require 'app/font.rb'
 require 'app/message_window.rb'
 require 'app/palette.rb'
@@ -13,6 +12,8 @@ require 'app/scenes/debug_screen.rb'
 require 'app/scenes/select_emojimon.rb'
 require 'app/sfx.rb'
 require 'app/ui.rb'
+
+require 'app/data.rb'
 
 LOWREZ_ZOOM = 11
 LOWREZ_RENDER_SIZE = 64 * LOWREZ_ZOOM
