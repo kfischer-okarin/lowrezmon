@@ -634,11 +634,13 @@ def validate_species
     if missing_keys.any?
       problems << { type: :missing_keys, keys: missing_keys }
     end
-    if definition[:attacks].any? { |attack| !ATTACKS.key?(attack) }
-      problems << { type: :unknown_attack, attack: attack }
-    end
-    if definition[:attacks].none? { |attack| ATTACKS[attack][:type] == definition[:type] }
-      problems << { type: :no_attack_of_own_type }
+    if definition[:attacks]
+      if definition[:attacks].any? { |attack| !ATTACKS.key?(attack) }
+        problems << { type: :unknown_attack, attack: attack }
+      end
+      if definition[:attacks].none? { |attack| ATTACKS[attack][:type] == definition[:type] }
+        problems << { type: :no_attack_of_own_type }
+      end
     end
 
     if problems.any?
