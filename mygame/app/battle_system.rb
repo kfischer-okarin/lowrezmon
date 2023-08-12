@@ -17,8 +17,15 @@ module BattleSystem
         return [:player, :opponent]
       end
 
-      # TODO Use Speed
-      [:player, :opponent]
+      player_emojimon_speed = player.emojimon[:speed]
+      opponent_emojimon_speed = opponent.emojimon[:speed]
+      if player_emojimon_speed > opponent_emojimon_speed
+        return [:player, :opponent]
+      elsif player_emojimon_speed < opponent_emojimon_speed
+        return [:opponent, :player]
+      else
+        [:player, :opponent].shuffle
+      end
     end
 
     def calc_damage(_attacker, defender, attack)
