@@ -88,7 +88,7 @@ module Scenes
       when :opponent_emojimon_dead
         queue_message("#{opponent.emojimon[:name]} disintegrates!")
         queue_opponent_emojimon_death
-        if still_has_emojimon?(opponent)
+        if remaining_emojimon_count(opponent).positive?
           opponent.emojimon = build_emojimon BattleSystem.choose_next_opponent_emojimon(opponent, player)
           @battle.queued_states_after_messages = [:opponent_sends_emojimon, :player_chooses_action]
         else
@@ -98,7 +98,16 @@ module Scenes
       when :player_emojimon_dead
         queue_message("#{player.emojimon[:name]} disintegrates!")
         queue_player_emojimon_death
-        @battle.queued_states_after_messages = still_has_emojimon?(player) ? [:player_chooses_emojimon] : [:battle_lost]
+        case remaining_emojimon_count(player)
+        when 0
+          @battle.queued_states_after_messages = [:battle_lost]
+        when 1
+          last_alive_emojimon = player.trainer[:emojimons].find { |emojimon| emojimon[:hp].positive? }
+          player.emojimon = build_emojimon last_alive_emojimon
+          @battle.queued_states_after_messages = [:player_sends_emojimon, :player_chooses_action]
+        else
+          @battle.queued_states_after_messages = [:player_chooses_emojimon]
+        end
         @battle.state = :go_to_next_state_after_messages
       when :player_chooses_emojimon
         @select_emojimon_scene = Scenes::SelectEmojimon.new(
@@ -158,8 +167,8 @@ module Scenes
 
     private
 
-    def still_has_emojimon?(combatant)
-      combatant.trainer[:emojimons].any? { |emojimon| emojimon[:hp].positive? }
+    def remaining_emojimon_count(combatant)
+      combatant.trainer[:emojimons].count { |emojimon| emojimon[:hp].positive? }
     end
 
     def build_emojimon(emojimon)

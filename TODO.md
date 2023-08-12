@@ -9,7 +9,7 @@
     - [x] After own emojimon death, no cancel is allowed
     - [x] Select will send Emojimon, next turn starts
     - [x] No dead emojimon can be selected
-    - [ ] Show no choice if only 1 alive emojimon left
+    - [x] Show no choice if only 1 alive emojimon left
   - [ ] Use ATK & DEF for determining damage
   - [ ] Use SPD to determine turn order
     - Same Rank = random order
