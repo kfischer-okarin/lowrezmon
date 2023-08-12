@@ -54,7 +54,8 @@ module Scenes
     end
 
     def render_emoji_preview(screen, state)
-      chunk_index = state.tick_count.idiv(60) % 4
+      number_of_chunks = (SPECIES.size / 16).ceil
+      chunk_index = state.tick_count.idiv(60) % number_of_chunks
       chunk_offset = chunk_index * 16
       emojis = SPECIES.values[chunk_offset, 16]
 
