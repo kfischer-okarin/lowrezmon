@@ -163,6 +163,54 @@ def test_battle_change_emojimon(args, assert)
   end
 end
 
+def test_battle_change_emojimon_after_death(args, assert)
+  BattleTest.new(args, assert) do
+    start_battle(
+      player_trainer: {
+        name: 'GREEN',
+        emojimons: [
+          { species: :winking, hp: 1 },
+          { species: :angry, hp: 26 },
+          { species: :angry, hp: 26 }
+        ]
+      },
+      opponent_trainer: {
+        name: 'VIOLA',
+        emojimons: [
+          { species: :angry, hp: 26 }
+        ]
+      }
+    )
+
+    advance_until_action_menu
+    choose_action :wink
+
+    expect_message 'Winking uses Wink!'
+    expect_message 'Angry uses Glare!'
+    expect_message 'Winking disintegrates!'
+
+    expect_emojimons [
+      { species: :winking, in_battle: true, selected: true },
+      { species: :angry, in_battle: false, selected: false },
+      { species: :angry, in_battle: false, selected: false }
+    ]
+
+    go_back_to_battle
+
+    expect_message 'You must choose one!'
+
+    select_emojimon_at_index 0
+
+    expect_message 'Winking is gone!'
+
+    select_emojimon_at_index 1
+
+    expect_message 'Go, Angry!'
+    expect_player_emojimon :angry
+    expect_action_menu
+  end
+end
+
 class BattleTest
   def initialize(args, assert, &block)
     @args = args

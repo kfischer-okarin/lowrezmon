@@ -34,7 +34,10 @@ module Scenes
         if Controls.confirm?(args.inputs)
           SFX.play(args, :confirm)
           selected_emojimon_data = emojimon_data(@emojimon_menu.selected_child)
-          if @emojimon_menu.selected_child == @state.current_emojimon
+          if @emojimon_menu.selected_child[:hp].zero?
+            @mode = :invalid_selection
+            @message_window.queue_message "#{selected_emojimon_data[:name]} is gone!"
+          elsif @emojimon_menu.selected_child == @state.current_emojimon
             @mode = :invalid_selection
             @message_window.queue_message 'Already in battle!'
           else
