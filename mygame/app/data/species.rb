@@ -36,7 +36,6 @@ BLUE_BACK_SPRITE = EMOJI_BACK_BASE_SPRITE.merge(
 ).freeze
 
 # Additional possible species are listed in the RESERVE_SPECIES constant
-# Use `validate_species` to check for issues with the species
 
 SPECIES = {
   winking: {
@@ -62,38 +61,6 @@ SPECIES = {
     attacks: [:glare]
   }
 }
-
-def validate_species
-  font = build_pokemini_font
-  SPECIES.each do |species, definition|
-    problems = []
-    if font.string_w(definition[:name]) > 31
-      problems << { type: :name_too_long, length: font.string_w(definition[:name]) }
-    end
-    if definition[:attacks].any? { |attack| !ATTACKS.key?(attack) }
-      problems << { type: :unknown_attack, attack: attack }
-    end
-    if definition[:attacks].none? { |attack| ATTACKS[attack][:type] == definition[:type] }
-      problems << { type: :no_attack_of_own_type }
-    end
-
-    if problems.any?
-      puts "Issues with species #{species.inspect}:"
-      problems.each do |problem|
-        case problem[:type]
-        when :name_too_long
-          puts "- name \"#{definition[:name]}\" is too long (#{problem[:length]}px > 31px)"
-        when :unknown_attack
-          puts "- unknown attack #{problem[:attack].inspect}"
-        when :no_attack_of_own_type
-          puts '- no attack of own type'
-        end
-      end
-    end
-  end
-
-  nil
-end
 
 RESERVE_SPECIES = {
   slightly_smiling: {
@@ -655,3 +622,37 @@ RESERVE_SPECIES = {
     type: :salty
   }
 }
+
+def validate_species
+  font = build_pokemini_font
+  SPECIES.each do |species, definition|
+    problems = []
+    if font.string_w(definition[:name]) > 31
+      problems << { type: :name_too_long, length: font.string_w(definition[:name]) }
+    end
+    if definition[:attacks].any? { |attack| !ATTACKS.key?(attack) }
+      problems << { type: :unknown_attack, attack: attack }
+    end
+    if definition[:attacks].none? { |attack| ATTACKS[attack][:type] == definition[:type] }
+      problems << { type: :no_attack_of_own_type }
+    end
+
+    if problems.any?
+      puts "Issues with species #{species.inspect}:"
+      problems.each do |problem|
+        case problem[:type]
+        when :name_too_long
+          puts "- name \"#{definition[:name]}\" is too long (#{problem[:length]}px > 31px)"
+        when :unknown_attack
+          puts "- unknown attack #{problem[:attack].inspect}"
+        when :no_attack_of_own_type
+          puts '- no attack of own type'
+        end
+      end
+    end
+  end
+
+  nil
+end
+
+validate_species
