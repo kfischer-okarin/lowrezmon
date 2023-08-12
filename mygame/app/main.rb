@@ -80,6 +80,7 @@ def render(args)
   return if $gtk.production?
 
   render_fps(args)
+  render_lowrez_mouse_position(args)
 end
 
 def to_lowrez_coordinates(point)
@@ -92,6 +93,13 @@ end
 def render_fps(args)
   args.outputs.primitives << {
     x: 0, y: 720, text: '%d' % $gtk.current_framerate,
+    r: 255, g: 255, b: 255
+  }.label!
+end
+
+def render_lowrez_mouse_position(args)
+  args.outputs.primitives << {
+    x: 0, y: 700, text: '%d, %d' % [args.state.lowrez_mouse_position.x, args.state.lowrez_mouse_position.y],
     r: 255, g: 255, b: 255
   }.label!
 end
