@@ -142,6 +142,12 @@ def test_battle_change_emojimon(args, assert)
       { species: :angry, in_battle: false, selected: false }
     ]
 
+    go_back_to_battle
+
+    expect_action_menu
+
+    choose_action :exchange
+
     select_emojimon_at_index 0
 
     expect_message 'Already in battle!'
@@ -257,7 +263,12 @@ class BattleTest
     @simulator.press_key :space
   end
 
+  def go_back_to_battle
+    @simulator.press_key :escape
+  end
+
   def select_emojimon_at_index(index)
+    raise 'Not in select emojimon menu' unless in_select_emojimon_menu?
     raise "No emojimon at index #{index}" unless emojimons[index]
 
     loop do
@@ -334,6 +345,12 @@ class BattleTest
         icon: sprite,
         selected: sprite.slice(:x, :y, :w, :h) == selected_background_icon_rect
       }
+    }
+  end
+
+  def in_select_emojimon_menu?
+    @simulator.rendered_borders.any? { |border|
+      border.slice(:r, :g, :b) == Palette::CURRENT_EMOJIMON_COLOR
     }
   end
 
