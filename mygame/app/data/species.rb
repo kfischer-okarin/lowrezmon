@@ -641,6 +641,9 @@ RESERVE_SPECIES = {
 
 def validate_species
   font = build_pokemini_font
+  no_problems = true
+
+  puts 'Validating species...'
   SPECIES.each do |species, definition|
     problems = []
     if font.string_w(definition[:name]) > 31
@@ -662,6 +665,7 @@ def validate_species
     end
 
     if problems.any?
+      no_problems = false
       puts "Issues with species #{species.inspect}:"
       problems.each do |problem|
         case problem[:type]
@@ -678,7 +682,9 @@ def validate_species
     end
   end
 
+  puts 'No issues with any species' if no_problems
+
   nil
 end
 
-validate_species
+validate_species unless $gtk.production?
