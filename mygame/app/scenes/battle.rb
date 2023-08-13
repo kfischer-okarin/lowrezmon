@@ -365,7 +365,7 @@ module Scenes
         element[:grow_animation] = Animations.lerp(
           opponent.sprite,
           to: target_values,
-          duration: element[:duration]
+          duration: element[:duration] - 1
         )
       else
         Animations.perform_tick element[:grow_animation]
@@ -384,7 +384,7 @@ module Scenes
         element[:grow_animation] = Animations.lerp(
           player.sprite,
           to: target_values,
-          duration: element[:duration]
+          duration: element[:duration] - 1
         )
       else
         Animations.perform_tick element[:grow_animation]
