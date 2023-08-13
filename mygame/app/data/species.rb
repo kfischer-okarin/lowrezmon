@@ -94,6 +94,62 @@ SPECIES = {
     defense: 1,
     speed: 4
   },
+  smirk: {
+    name: "Smirk",
+    sprite: EMOJI_BASE_SPRITE.merge(
+      tile_x: 128,
+      tile_y: 0
+    ),
+    back_sprite: YELLOW_BACK_SPRITE,
+    type: :sassy,
+    max_hp: 26,
+    attacks: [:tease],
+    attack: 4,
+    defense: 2,
+    speed: 3
+  },
+  sad: {
+    name: "Sad",
+    sprite: EMOJI_BASE_SPRITE.merge(
+      tile_x: 32,
+      tile_y: 16
+    ),
+    back_sprite: YELLOW_BACK_SPRITE,
+    type: :salty,
+    attacks: [:cry],
+    max_hp: 26,
+    attack: 2,
+    defense: 4,
+    speed: 2
+  },
+  laugh: {
+    name: "Laugh",
+    sprite: EMOJI_BASE_SPRITE.merge(
+      tile_x: 96,
+      tile_y: 0
+    ),
+    back_sprite: YELLOW_BACK_SPRITE,
+    type: :silly,
+    attacks: [:giggle],
+    max_hp: 26,
+    attack: 3,
+    defense: 3,
+    speed: 4
+  },
+  love: {
+    name: "Love",
+    sprite: EMOJI_BASE_SPRITE.merge(
+      tile_x: 0,
+      tile_y: 32
+    ),
+    back_sprite: YELLOW_BACK_SPRITE,
+    type: :sexy,
+    attacks: [:adore],
+    max_hp: 26,
+    attack: 4,
+    defense: 2,
+    speed: 3
+  },
 }
 
 RESERVE_SPECIES = {
@@ -133,15 +189,6 @@ RESERVE_SPECIES = {
     back_sprite: YELLOW_BACK_SPRITE,
     type: :silly
   },
-  smiling_tears: {
-    name: "Smiling Tears",
-    sprite: EMOJI_BASE_SPRITE.merge(
-      tile_x: 96,
-      tile_y: 0
-    ),
-    back_sprite: YELLOW_BACK_SPRITE,
-    type: :salty
-  },
   grinning_relief: {
     name: "Grinning Relief",
     sprite: EMOJI_BASE_SPRITE.merge(
@@ -164,15 +211,6 @@ RESERVE_SPECIES = {
     name: "Loudly Crying",
     sprite: EMOJI_BASE_SPRITE.merge(
       tile_x: 16,
-      tile_y: 16
-    ),
-    back_sprite: YELLOW_BACK_SPRITE,
-    type: :salty
-  },
-  crying: {
-    name: "Crying",
-    sprite: EMOJI_BASE_SPRITE.merge(
-      tile_x: 32,
       tile_y: 16
     ),
     back_sprite: YELLOW_BACK_SPRITE,
@@ -222,15 +260,6 @@ RESERVE_SPECIES = {
     ),
     back_sprite: YELLOW_BACK_SPRITE,
     type: :silly
-  },
-  smiling_hearty_eyes: {
-    name: "Smiling Hearty Eyes",
-    sprite: EMOJI_BASE_SPRITE.merge(
-      tile_x: 0,
-      tile_y: 32
-    ),
-    back_sprite: YELLOW_BACK_SPRITE,
-    type: :sexy
   },
   grinning_hearty_eyes: {
     name: "Grinning Hearty Eyes",
