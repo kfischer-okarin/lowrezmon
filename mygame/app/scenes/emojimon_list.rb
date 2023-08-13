@@ -1,6 +1,7 @@
 module Scenes
   class EmojimonList
-    def initialize
+    def initialize(previous_scene:)
+      @previous_scene = previous_scene
       @font = build_pokemini_font
       @fatnumbers_font = build_pokemini_fatnumbers_font
       @emojimons = SPECIES
@@ -21,7 +22,7 @@ module Scenes
         slot = args.state.team_builder.selected_slot
         team[slot] = @emojimons_menu.selected_child
 
-        $next_scene = Scenes::TeamBuilder.new args
+        $next_scene = @previous_scene
       end
     end
 

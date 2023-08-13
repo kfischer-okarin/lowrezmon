@@ -16,22 +16,7 @@ module Scenes
 
       if Controls.confirm?(args.inputs)
         SFX.play args, :confirm
-        $next_scene = Scenes::Battle.new(
-          args,
-          player_trainer: {
-            name: 'GREEN',
-            emojimons: [
-              { species: :kissy, hp: 26 }
-            ]
-          },
-          opponent_trainer: {
-            name: 'VIOLA',
-            emojimons: [
-              { species: :angry, hp: 26 }
-            ]
-          }
-        )
-        # $next_scene = Scenes::Tournament.new args, tournament: @menu.selected_item[:id]
+        $next_scene = Scenes::Tournament.new args, tournament: @menu.selected_child[:id]
       end
     end
 

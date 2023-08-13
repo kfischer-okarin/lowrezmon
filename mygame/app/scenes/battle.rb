@@ -1,6 +1,7 @@
 module Scenes
   class Battle
-    def initialize(args, player_trainer:, opponent_trainer:)
+    def initialize(args, previous_scene:, player_trainer:, opponent_trainer:)
+      @previous_scene = previous_scene
       @font = build_pokemini_font
 
       battle = args.state.battle = args.state.new_entity(:battle)
@@ -25,6 +26,11 @@ module Scenes
       battle.state = :battle_start
       battle.queued_states_after_messages = []
       battle.turn_order = nil
+      battle.result = nil
+    end
+
+    def result
+      @battle.result
     end
 
     def update(args)
@@ -133,16 +139,16 @@ module Scenes
         end
       when :battle_won
         queue_message("#{opponent.trainer[:name]} is defeated!")
-        # @previous_scene.battle_won
+        @battle.result = :won
         @battle.queued_states_after_messages = [:return_to_previous_scene]
         @battle.state = :go_to_next_state_after_messages
       when :battle_lost
         queue_message('You were defeated!')
-        # @previous_scene.battle_lost
+        @battle.result = :lost
         @battle.queued_states_after_messages = [:return_to_previous_scene]
         @battle.state = :go_to_next_state_after_messages
       when :return_to_previous_scene
-        # $next_scene = @previous_scene
+        $next_scene = @previous_scene
       when :go_to_next_state_after_messages
         @battle.state = @battle.queued_states_after_messages.shift
       end

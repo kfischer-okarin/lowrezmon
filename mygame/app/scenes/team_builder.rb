@@ -1,6 +1,9 @@
 module Scenes
   class TeamBuilder
-    def initialize(args)
+    attr_reader :chosen_emojimons
+
+    def initialize(args, previous_scene:)
+      @previous_scene = previous_scene
       @font = build_pokemini_font
       @fatnumbers_font = build_pokemini_fatnumbers_font
 
@@ -14,6 +17,7 @@ module Scenes
 
       @go_button = button(x: 23, y: 1, h: 10, w: 18, text: "Go!", color: Palette::WHITE, bgcolor: Palette::BLACK)
       @ui = MenuNavigation.new([:slots_menu, :go_button])
+      @chosen_emojimons = nil
     end
 
     def update(args)
@@ -33,25 +37,13 @@ module Scenes
         case @ui.selected_child
         when :slots_menu
           args.state.team_builder.selected_slot = @slots_menu.selected_index
-          $next_scene = Scenes::EmojimonList.new
+          $next_scene = Scenes::EmojimonList.new(previous_scene: self)
         when :go_button
-          team = args.state.team.map do |emojimon|
-            {species: emojimon, hp: SPECIES[emojimon].max_hp}
-          end
+          @chosen_emojimons = args.state.team.map { |emojimon|
+            { species: emojimon, hp: SPECIES[emojimon].max_hp }
+          }
 
-          $next_scene = Scenes::Battle.new(
-            args,
-            player_trainer: {
-              name: 'GREEN',
-              emojimons: team
-            },
-            opponent_trainer: {
-              name: 'VIOLA',
-              emojimons: [
-                { species: :angry, hp: 26 }
-              ]
-            }
-          )
+          $next_scene = @previous_scene
         end
       end
     end
