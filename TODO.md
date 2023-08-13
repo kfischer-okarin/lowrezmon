@@ -15,9 +15,9 @@
     - Same Rank = random order
 
 - [ ] Finish up 10 Emojimon
-  - [ ] Give short enough name (2/10)
-  - [ ] Assign 1 Attack (can be shared by several emojimon) (2/10)
-  - [ ] Assign ATK/DEF/SPD values from 1-5 (0/10)
+  - [ ] Give short enough name (8/10)
+  - [ ] Assign 1 Attack (can be shared by several emojimon) (8/10)
+  - [ ] Assign ATK/DEF/SPD values from 1-5 (8/10)
 
 - [ ] Team Selection Screen
   - [ ] Menu with all unlocked Emojimon
