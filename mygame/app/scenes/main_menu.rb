@@ -2,9 +2,9 @@ module Scenes
   class MainMenu
     def initialize(args)
       @font = build_pokemini_font
-      @menu = MenuNavigation.new [
-        { label: 'Bronze Cup', id: :bronze_cup, color: { r: 0xC3, g: 0x72, b: 0x00 } }
-      ]
+      @menu = MenuNavigation.new TOURNAMENTS.map { |tournament|
+        { tournament: tournament, label: tournament[:name], color: tournament[:color] }
+      }
     end
 
     def update(args)
@@ -16,7 +16,7 @@ module Scenes
 
       if Controls.confirm?(args.inputs)
         SFX.play args, :confirm
-        $next_scene = Scenes::Tournament.new args, tournament: @menu.selected_child[:id]
+        $next_scene = Scenes::Tournament.new args, tournament: @menu.selected_child[:tournament]
       end
     end
 

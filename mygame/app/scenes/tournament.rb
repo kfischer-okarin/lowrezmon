@@ -5,14 +5,6 @@ module Scenes
       @tournament = tournament
       @team_builder = Scenes::TeamBuilder.new(args, previous_scene: self)
       @battle_index = 0
-      @opponents = [
-        {
-          name: 'VIOLA',
-          emojimons: [
-            { species: :angry, hp: 26 }
-          ]
-        }
-      ]
     end
 
     def update(args)
@@ -31,7 +23,7 @@ module Scenes
           args,
           previous_scene: self,
           player_trainer: @player,
-          opponent_trainer: @opponents[@battle_index]
+          opponent_trainer: @tournament[:opponents][@battle_index]
         )
         $next_scene = @battle
         @state = :battle_result
