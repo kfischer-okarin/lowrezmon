@@ -142,9 +142,4 @@ def handle_toggle_team_builder_screen(args)
   end
 end
 
-
-def build_label(values)
-  { font: 'fonts/lowrez.ttf', size_px: 5 }.label!(values)
-end
-
 $gtk.reset
