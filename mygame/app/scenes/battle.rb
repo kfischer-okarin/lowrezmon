@@ -110,7 +110,7 @@ module Scenes
         end
         @battle.state = :go_to_next_state_after_messages
       when :player_chooses_emojimon
-        @select_emojimon_scene = Scenes::SelectEmojimon.new(
+        @select_emojimon_scene = Scenes::ChangeEmojimon.new(
           args,
           battle_scene: self,
           player_trainer: player.trainer,

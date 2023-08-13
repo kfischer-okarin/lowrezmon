@@ -1,5 +1,5 @@
 module Scenes
-  class SelectEmojimon
+  class ChangeEmojimon
     attr_reader :chosen_emojimon
 
     def initialize(args, battle_scene:, player_trainer:, current_emojimon:)
