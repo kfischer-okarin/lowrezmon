@@ -8,11 +8,12 @@ require 'app/font.rb'
 require 'app/message_window.rb'
 require 'app/palette.rb'
 require 'app/scenes/battle.rb'
+require 'app/scenes/emoji_selection.rb'
+require 'app/scenes/team_builder.rb'
 require 'app/scenes/debug_screen.rb'
 require 'app/scenes/select_emojimon.rb'
 require 'app/sfx.rb'
 require 'app/ui.rb'
-
 require 'app/data.rb'
 
 LOWREZ_ZOOM = 11
@@ -57,10 +58,12 @@ def update(args)
     y: mouse.y
   )
   $scene.update(args)
+
   return if $gtk.production?
 
   handle_screenshot(args)
   handle_toggle_debug_screen(args)
+  handle_toggle_team_builder_screen(args)
 end
 
 def render(args)
@@ -127,6 +130,21 @@ def handle_toggle_debug_screen(args)
   end
 end
 
+def handle_toggle_team_builder_screen(args)
+  return unless args.inputs.keyboard.key_down.one
+
+  if $original_scene
+    $next_scene = $original_scene
+    $original_scene = nil
+  else
+    $original_scene = $scene
+    $next_scene = Scenes::TeamBuilder.new(args)
+  end
+end
+
+
 def build_label(values)
   { font: 'fonts/lowrez.ttf', size_px: 5 }.label!(values)
 end
+
+$gtk.reset
