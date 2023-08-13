@@ -11,6 +11,7 @@ require 'app/scenes/battle.rb'
 require 'app/scenes/change_emojimon.rb'
 require 'app/scenes/debug_screen.rb'
 require 'app/scenes/emojimon_list.rb'
+require 'app/scenes/main_menu.rb'
 require 'app/scenes/team_builder.rb'
 require 'app/sfx.rb'
 require 'app/ui.rb'
@@ -34,21 +35,7 @@ def tick(args)
 end
 
 def setup(args)
-  $scene = Scenes::Battle.new(
-    args,
-    player_trainer: {
-      name: 'GREEN',
-      emojimons: [
-        { species: :kissy, hp: 26 }
-      ]
-    },
-    opponent_trainer: {
-      name: 'VIOLA',
-      emojimons: [
-        { species: :angry, hp: 26 }
-      ]
-    }
-  )
+  $scene = Scenes::MainMenu.new(args)
 end
 
 def update(args)
