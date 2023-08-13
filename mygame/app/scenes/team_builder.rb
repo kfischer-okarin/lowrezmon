@@ -33,7 +33,7 @@ module Scenes
         case @ui.selected_child
         when :slots_menu
           args.state.team_builder.selected_slot = @slots_menu.selected_index
-          $next_scene = Scenes::EmojiSelection.new
+          $next_scene = Scenes::EmojimonList.new
         when :go_button
           team = args.state.team.map do |emojimon|
             {species: emojimon, hp: SPECIES[emojimon].max_hp}

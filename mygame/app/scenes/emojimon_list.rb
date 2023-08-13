@@ -1,5 +1,5 @@
 module Scenes
-  class EmojiSelection
+  class EmojimonList
     def initialize
       @font = build_pokemini_font
       @fatnumbers_font = build_pokemini_fatnumbers_font
