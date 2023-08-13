@@ -26,8 +26,13 @@ class SpritesheetFont
 
   def build_label(text:, x:, y:, **values)
     result = []
+    case values.delete :alignment_enum
+    when 1
+      x -= string_w(text).idiv 2
+    when 2
+      x -= string_w(text)
+    end
     text.each_char do |char|
-      letter_position = @letter_positions[char]
       letter_sprite = char_sprite(char).merge!(x: x, y: y)
                                        .merge!(values)
       result << letter_sprite
