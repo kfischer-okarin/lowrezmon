@@ -213,8 +213,12 @@ module Scenes
     end
 
     def render_action_menu(screen)
-      @action_menu.children.each do |option|
-        bg_color = option.selected ? Palette::BATTLE_SELECTED_ACTION_COLOR : Palette::BATTLE_UNSELECTED_ACTION_COLOR
+      @action_menu.children.each_with_index do |option, index|
+        bg_color = if index == @action_menu.selected_index
+                     Palette::BATTLE_SELECTED_ACTION_COLOR
+                   else
+                     Palette::BATTLE_UNSELECTED_ACTION_COLOR
+                   end
         screen.primitives << option[:rect].merge(path: 'sprites/icons/background.png').merge!(bg_color)
         screen.primitives << option[:rect].merge(option[:sprite])
       end

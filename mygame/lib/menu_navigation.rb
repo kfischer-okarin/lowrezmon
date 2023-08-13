@@ -6,21 +6,15 @@ class MenuNavigation
     @horizontal = horizontal
     @loop = loop
 
-    children.each do |child|
-      child.selected = false if child.respond_to? :selected=
-    end
     @selected_index = 0
 
     self.selected_index = selected_index
   end
 
   def selected_index=(value)
-    old_index = @selected_index
-    @selection_changed = old_index != value
+    @selection_changed = @selected_index != value
     @selected_index = @loop ? (value % @children.size) : value.clamp(0, @children.size - 1)
 
-    @children[old_index].selected = false if @children[old_index].respond_to? :selected=
-    @children[@selected_index].selected = true if @children[@selected_index].respond_to? :selected=
     @selected_child = @children[@selected_index]
     @selected_index
   end
