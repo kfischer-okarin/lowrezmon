@@ -649,7 +649,7 @@ def validate_species
     if font.string_w(definition[:name]) > 31
       problems << { type: :name_too_long, length: font.string_w(definition[:name]) }
     end
-    missing_keys = definition.keys - [:name, :sprite, :back_sprite, :type, :max_hp, :attacks, :attack, :defense, :speed]
+    missing_keys = [:name, :sprite, :back_sprite, :type, :max_hp, :attacks, :attack, :defense, :speed] - definition.keys
     if missing_keys.any?
       problems << { type: :missing_keys, keys: missing_keys }
     end
