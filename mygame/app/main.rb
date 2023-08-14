@@ -14,6 +14,7 @@ require 'app/scenes/debug_screen.rb'
 require 'app/scenes/emojimon_list.rb'
 require 'app/scenes/main_menu.rb'
 require 'app/scenes/team_builder.rb'
+require 'app/scenes/title_screen.rb'
 require 'app/scenes/tournament.rb'
 require 'app/sfx.rb'
 require 'app/ui.rb'
@@ -39,7 +40,7 @@ def tick(args)
 end
 
 def setup(args)
-  $scene = Scenes::MainMenu.new(args)
+  $scene = Scenes::TitleScreen.new(args)
   $scene.on_enter(args) if $scene.respond_to?(:on_enter)
 end
 

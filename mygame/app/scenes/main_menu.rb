@@ -7,10 +7,6 @@ module Scenes
       }
     end
 
-    def on_enter(args)
-      Music.play args, :main_menu
-    end
-
     def update(args)
       @menu.tick(args)
 
