@@ -38,5 +38,25 @@ ATTACKS = {
     name: 'Wink',
     type: :sassy,
     sprite: { path: 'sprites/icons/wink.png' }
-  }
+  },
+  horns: {
+    name: "Horns",
+    type: :salty,
+    sprite: { path: 'sprites/icons/horns.png' }
+  },
+  freeze: {
+    name: "Freeze",
+    type: :silly,
+    sprite: { path: 'sprites/icons/freeze.png' }
+  },
+  brrr: {
+    name: "Brrr",
+    type: :sassy,
+    sprite: { path: 'sprites/icons/brrr.png' }
+  },
+  stare: {
+    name: "Stare",
+    type: :sexy,
+    sprite: { path: 'sprites/icons/stare.png' }
+  },
 }

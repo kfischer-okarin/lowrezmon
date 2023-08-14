@@ -150,62 +150,62 @@ SPECIES = {
     defense: 2,
     speed: 3
   },
-  # evil: {
-  #   name: "Evil",
-  #   sprite: EMOJI_BASE_SPRITE.merge(
-  #     tile_x: 80,
-  #     tile_y: 112
-  #   ),
-  #   back_sprite: PURPLE_BACK_SPRITE,
-  #   type: :salty,
-  #   attacks: [:horns],
-  #   max_hp: 26,
-  #   attack: 6,
-  #   defense: 1,
-  #   speed: 4
-  # },
-  # cold: {
-  #   name: "Cold",
-  #   sprite: EMOJI_BASE_SPRITE.merge(
-  #     tile_x: 48,
-  #     tile_y: 112
-  #   ),
-  #   back_sprite: BLUE_BACK_SPRITE,
-  #   type: :silly,
-  #   attacks: [:freeze],
-  #   max_hp: 26,
-  #   attack: 2,
-  #   defense: 4,
-  #   speed: 3
-  # },
-  # zany: {
-  #   name: "Zany",
-  #   sprite: EMOJI_BASE_SPRITE.merge(
-  #     tile_x: 96,
-  #     tile_y: 48
-  #   ),
-  #   back_sprite: YELLOW_BACK_SPRITE,
-  #   type: :sassy,
-  #   attacks: [:brrrr],
-  #   max_hp: 26,
-  #   attack: 2,
-  #   defense: 4,
-  #   speed: 5
-  # },
-  # cooley: {
-  #   name: "Cooley",
-  #   sprite: EMOJI_BASE_SPRITE.merge(
-  #     tile_x: 0,
-  #     tile_y: 80
-  #   ),
-  #   back_sprite: YELLOW_BACK_SPRITE,
-  #   type: :sexy,
-  #   attacks: [:stare],
-  #   max_hp: 26,
-  #   attack: 2,
-  #   defense: 5,
-  #   speed: 3
-  # }
+  evil: {
+    name: "Evil",
+    sprite: EMOJI_BASE_SPRITE.merge(
+      tile_x: 80,
+      tile_y: 112
+    ),
+    back_sprite: PURPLE_BACK_SPRITE,
+    type: :salty,
+    attacks: [:horns],
+    max_hp: 26,
+    attack: 6,
+    defense: 1,
+    speed: 4
+  },
+  cold: {
+    name: "Cold",
+    sprite: EMOJI_BASE_SPRITE.merge(
+      tile_x: 48,
+      tile_y: 112
+    ),
+    back_sprite: BLUE_BACK_SPRITE,
+    type: :silly,
+    attacks: [:freeze],
+    max_hp: 26,
+    attack: 2,
+    defense: 4,
+    speed: 3
+  },
+  zany: {
+    name: "Zany",
+    sprite: EMOJI_BASE_SPRITE.merge(
+      tile_x: 96,
+      tile_y: 48
+    ),
+    back_sprite: YELLOW_BACK_SPRITE,
+    type: :sassy,
+    attacks: [:brrr],
+    max_hp: 26,
+    attack: 2,
+    defense: 4,
+    speed: 5
+  },
+  cooley: {
+    name: "Cooley",
+    sprite: EMOJI_BASE_SPRITE.merge(
+      tile_x: 0,
+      tile_y: 80
+    ),
+    back_sprite: YELLOW_BACK_SPRITE,
+    type: :sexy,
+    attacks: [:stare],
+    max_hp: 26,
+    attack: 2,
+    defense: 5,
+    speed: 3
+  },
 }
 
 RESERVE_SPECIES = {
