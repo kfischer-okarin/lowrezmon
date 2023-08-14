@@ -16,14 +16,14 @@ module Scenes
       @slots_menu = MenuNavigation.new @slots, horizontal: true
 
       @go_button = button(x: 23, y: 1, h: 10, w: 18, text: "Go!", color: Palette::WHITE, bgcolor: Palette::BLACK)
-      @ui = MenuNavigation.new([:slots_menu, :go_button])
+      @ui = MenuNavigation.new([@slots_menu, @go_button])
       @chosen_emojimons = nil
     end
 
     def update(args)
       @ui.tick(args)
 
-      if @ui.selected_child == :slots_menu
+      if @ui.selected_child == @slots_menu
         @slots_menu.tick(args)
       end
 
@@ -35,10 +35,10 @@ module Scenes
         SFX.play args, :confirm
 
         case @ui.selected_child
-        when :slots_menu
+        when @slots_menu
           args.state.team_builder.selected_slot = @slots_menu.selected_index
           $next_scene = Scenes::EmojimonList.new(previous_scene: self)
-        when :go_button
+        when @go_button
           @chosen_emojimons = args.state.team.map { |emojimon|
             { species: emojimon, hp: SPECIES[emojimon].max_hp }
           }
@@ -56,7 +56,7 @@ module Scenes
 
       screen.primitives << @font.build_label(text: "Your team!", x: 8, y: 54)
 
-      if @ui.selected_child == :slots_menu
+      if @ui.selected_child == @slots_menu
         selected_slot = @slots_menu.selected_child.rect
         screen.primitives << selected_slot.merge(
           x: selected_slot.x - 1,
@@ -74,7 +74,7 @@ module Scenes
         emoji.sprite.to_sprite(x: 3 + i * 20, y: 31)
       }
 
-      screen.primitives << if @ui.selected_child == :go_button
+      screen.primitives << if @ui.selected_child == @go_button
         button(x: 23, y: 1, h: 10, w: 18, text: "Go!", color: Palette::WHITE, bgcolor: Palette::BLACK).sprite
       else
         button(x: 23, y: 1, h: 10, w: 18, text: "Go!", bgcolor: Palette::WHITE, color: Palette::BLACK).sprite
