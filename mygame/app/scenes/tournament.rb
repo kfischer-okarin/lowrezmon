@@ -27,11 +27,31 @@ module Scenes
         )
         $next_scene = @battle
         @state = :battle_result
+      when :battle_result
+        if @battle.result == :won
+          if @battle_index < @tournament[:opponents].size - 1
+            @battle_index += 1
+            restore_player_emojimons_health
+            @state = :start_battle
+          else
+            @state = :tournament_won
+          end
+        else
+          @state = :game_over
+        end
       end
     end
 
     def render(screen, state)
 
+    end
+
+    private
+
+    def restore_player_emojimons_health
+      @player[:emojimons].each do |emojimon|
+        emojimon[:hp] = SPECIES[emojimon[:species]][:max_hp]
+      end
     end
   end
 end
