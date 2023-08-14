@@ -16,7 +16,8 @@ module Scenes
       @slots_menu = MenuNavigation.new @slots, horizontal: true
 
       @go_button = button(x: 23, y: 1, h: 10, w: 18, text: "Go!", color: Palette::WHITE, bgcolor: Palette::BLACK)
-      @ui = MenuNavigation.new([@slots_menu, @go_button])
+      @randomize_button = button(x: 6, y: 12, h: 10, w: 51, text: "Randomize!", color: Palette::WHITE, bgcolor: Palette::BLACK)
+      @ui = MenuNavigation.new([@slots_menu, @randomize_button, @go_button])
       @chosen_emojimons = nil
     end
 
@@ -44,6 +45,10 @@ module Scenes
           }
 
           $next_scene = @previous_scene
+        when @randomize_button
+          @team = args.state.team = args.state.team.map { |emojimon|
+            SPECIES.keys.sample
+          }
         end
       end
     end
@@ -70,22 +75,25 @@ module Scenes
       screen.primitives << @slots.map(&:sprite)
       screen.primitives << @team.map.with_index { |name, i|
         next unless name
+
         emoji = SPECIES[name]
         emoji.sprite.to_sprite(x: 3 + i * 20, y: 31)
       }
+
+      screen.primitives << if @ui.selected_child == @randomize_button
+        button(text: "Randomize!", color: Palette::WHITE, bgcolor: Palette::BLACK, **@randomize_button[:rect]).sprite
+      else
+        button(text: "Randomize!", bgcolor: Palette::WHITE, color: Palette::BLACK, **@randomize_button[:rect]).sprite
+      end
 
       screen.primitives << if @ui.selected_child == @go_button
         button(text: "Go!", color: Palette::WHITE, bgcolor: Palette::BLACK, **@go_button[:rect]).sprite
       else
         button(text: "Go!", bgcolor: Palette::WHITE, color: Palette::BLACK, **@go_button[:rect]).sprite
       end
-      # buttons
     end
 
     private
-
-    def go!
-    end
 
     def button(x:, y:, w:, h:, text: nil, color: Palette::WHITE, bgcolor: Palette::BLACK)
       rect = {x: x, y: y, h: h, w: w}
