@@ -192,8 +192,8 @@ SPECIES = {
     defense: 4,
     speed: 5
   },
-  coolguy: {
-    name: "Coolguy",
+  cooley: {
+    name: "Cooley",
     sprite: EMOJI_BASE_SPRITE.merge(
       tile_x: 0,
       tile_y: 80
