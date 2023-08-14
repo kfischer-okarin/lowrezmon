@@ -72,7 +72,7 @@ SILVER = {
 
 GOLD = {
   name: 'Gold Cup',
-  color: { r: 0xff, g: 0xf3, b: 0x92 },
+  color: { r: 0xeb, g: 0xd3, b: 0x20 },
   opponents: [
     {
       name: 'HANNA',
