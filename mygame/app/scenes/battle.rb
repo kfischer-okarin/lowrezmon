@@ -33,6 +33,10 @@ module Scenes
       @battle.result
     end
 
+    def on_enter(args)
+      Music.play(args, :battle)
+    end
+
     def update(args)
       @battle = args.state.battle
       @tick_count = args.tick_count
@@ -48,11 +52,6 @@ module Scenes
       opponent = @battle.opponent
       case @battle.state
       when :battle_start
-        args.audio[:bgm] = {
-          input: 'music/they_be_angry.mp3',
-          gain: 0.3,
-          looping: true
-        }
         queue_message("#{opponent.trainer[:name]} wants to battle!")
         player.emojimon = build_emojimon player.trainer[:emojimons].first
         opponent.emojimon = build_emojimon opponent.trainer[:emojimons].first
