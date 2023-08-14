@@ -58,7 +58,7 @@ module Scenes
 
       if @ui.selected_child == @slots_menu
         selected_slot = @slots_menu.selected_child.rect
-        screen.primitives << selected_slot.merge(
+        screen.primitives << selected_slot.to_border(
           x: selected_slot.x - 1,
           y: selected_slot.y - 1,
           w: selected_slot.w + 2,
@@ -75,9 +75,9 @@ module Scenes
       }
 
       screen.primitives << if @ui.selected_child == @go_button
-        button(x: 23, y: 1, h: 10, w: 18, text: "Go!", color: Palette::WHITE, bgcolor: Palette::BLACK).sprite
+        button(text: "Go!", color: Palette::WHITE, bgcolor: Palette::BLACK, **@go_button[:rect]).sprite
       else
-        button(x: 23, y: 1, h: 10, w: 18, text: "Go!", bgcolor: Palette::WHITE, color: Palette::BLACK).sprite
+        button(text: "Go!", bgcolor: Palette::WHITE, color: Palette::BLACK, **@go_button[:rect]).sprite
       end
       # buttons
     end
@@ -93,7 +93,7 @@ module Scenes
       {
         rect: rect,
         sprite: [
-          {**rect, **bgcolor}.solid!,
+          rect.to_solid(bgcolor),
           (@font.build_label(text: text, x: x + 2, y: y + 2, **color) if text)
         ].compact
       }
