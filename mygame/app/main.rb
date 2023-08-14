@@ -31,13 +31,16 @@ def tick(args)
   update(args)
   render(args)
   if $next_scene
+    $scene.on_exit(args) if $scene.respond_to?(:on_leave)
     $scene = $next_scene
+    $scene.on_enter(args) if $scene.respond_to?(:on_enter)
     $next_scene = nil
   end
 end
 
 def setup(args)
   $scene = Scenes::MainMenu.new(args)
+  $scene.on_enter(args) if $scene.respond_to?(:on_enter)
 end
 
 def update(args)
