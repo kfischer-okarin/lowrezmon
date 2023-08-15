@@ -3,5 +3,5 @@ devid=kfischer_okarin
 devtitle=Kevin Fischer & F-3r
 gameid=emojimon-stadium
 gametitle=Emojimon Stadium
-version=0.1
+version=1.0
 icon=metadata/icon.png
