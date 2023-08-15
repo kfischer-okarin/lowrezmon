@@ -12,14 +12,21 @@ module Music
           looping: true
         }
       when :battle
-        file = 'music/they_be_angry.mp3'
+        file = 'music/they_be_angry_loop.ogg'
         return if args.audio[:bgm]&.input == file
 
         args.audio[:bgm] = {
           input: file,
           gain: 0.4,
-          looping: true
+          looping: true,
+          # paused: true,
+          # start_at_tick: args.tick_count + 180
         }
+
+        # args.audio[:bgm_intro] = {
+        #   input: 'music/they_be_angry_intro.ogg',
+        #   gain: 0.4
+        # }
       end
     end
 
@@ -39,6 +46,10 @@ module Music
       if bgm
         bgm[:gain] -= bgm[:fade_out_speed] if bgm[:fade_out_speed]
         stop(args) if bgm[:gain] <= 0
+
+        if bgm[:paused] && bgm[:start_at_tick] <= args.tick_count
+          bgm[:paused] = false
+        end
       end
     end
   end
