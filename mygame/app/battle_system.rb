@@ -31,8 +31,9 @@ module BattleSystem
     def calc_damage(attacker, defender, attack)
       base_damage = [3 + rand(3) + (attacker[:attack] - defender[:defense]), 1].max
       multiplier = Type.calc_damage_multiplier_of(attack[:type], against_type: defender[:type])
+      total_amount = [(base_damage * multiplier).to_i, 1].max
       {
-        total_amount: (base_damage * multiplier).to_i,
+        total_amount: total_amount,
         multiplier: multiplier
       }
     end
