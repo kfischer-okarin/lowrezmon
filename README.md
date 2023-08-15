@@ -5,6 +5,10 @@
   - Rotate through sub-screens with `TAB`
 - `0` - Take screenshot
 
+### During Battle
+- `1` in action menu - win battle after selecting action
+- `2` in action menu - lose battle after selecting action
+
 ## How to checkout the game
 1. Extract the DragonRuby version you want to use somewhere
 2. Delete original `mygame` folder (or alternatively rename it into `mygame-template` if you want to keep the files around)

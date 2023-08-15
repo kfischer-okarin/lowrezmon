@@ -81,6 +81,9 @@ module Scenes
           player.selected_action = @action_menu.selected_child[:action]
           @battle.state = :first_turn
         end
+        return if $gtk.production?
+
+        handle_cheats(args)
       when :first_turn
         opponent.selected_action = BattleSystem.choose_opponent_action(opponent, player)
         @battle.turn_order = BattleSystem.determine_turn_order(player, opponent)
@@ -463,6 +466,14 @@ module Scenes
 
     def play_sfx_tick(args, element)
       SFX.play(args, element[:id])
+    end
+
+    def handle_cheats(args)
+      if args.inputs.keyboard.key_down.one
+        @battle.state = :battle_won
+      elsif args.inputs.keyboard.key_down.two
+        @battle.state = :battle_lost
+      end
     end
   end
 end
