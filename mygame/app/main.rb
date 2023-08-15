@@ -32,6 +32,7 @@ def tick(args)
   setup(args) if args.tick_count.zero?
   update(args)
   render(args)
+  Music.tick(args)
   if $next_scene
     $scene.on_exit(args) if $scene.respond_to?(:on_leave)
     $scene = $next_scene

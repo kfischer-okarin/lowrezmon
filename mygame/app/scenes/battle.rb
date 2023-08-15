@@ -142,11 +142,13 @@ module Scenes
           @battle.state = :player_chooses_action
         end
       when :battle_won
+        Music.fade_out args, duration: 120
         queue_message("#{opponent.trainer[:name]} is defeated!")
         @battle.result = :won
         @battle.queued_states_after_messages = [:return_to_previous_scene]
         @battle.state = :go_to_next_state_after_messages
       when :battle_lost
+        Music.fade_out args, duration: 120
         queue_message('You were defeated!')
         @battle.result = :lost
         @battle.queued_states_after_messages = [:return_to_previous_scene]
