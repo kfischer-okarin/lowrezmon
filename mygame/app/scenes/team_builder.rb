@@ -40,7 +40,12 @@ module Scenes
           args.state.team_builder.selected_slot = @slots_menu.selected_index
           $next_scene = Scenes::EmojimonList.new(previous_scene: self)
         when @go_button
-          @chosen_emojimons = args.state.team.map { |emojimon|
+          if @team.all?(&:nil?)
+            SFX.play args, :cancel
+            return
+          end
+
+          @chosen_emojimons = args.state.team.compact.map { |emojimon|
             { species: emojimon, hp: SPECIES[emojimon].max_hp }
           }
 
