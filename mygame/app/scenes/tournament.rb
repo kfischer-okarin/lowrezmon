@@ -54,6 +54,7 @@ module Scenes
       when :tournament_won, :game_over
         if Controls.confirm?(args.inputs)
           SFX.play(args, :hit)
+          Music.play args, :main_menu
           $next_scene = Scenes::MainMenu.new args
         end
       end
@@ -121,7 +122,6 @@ module Scenes
 
         screen.primitives << @font.build_label(text: 'GAME OVER', x: 32, y: 20, alignment_enum: 1, **Palette::WHITE)
         screen.primitives << @font.build_label(text: 'Press SPACE', x: 32, y: 1, alignment_enum: 1, **Palette::WHITE)
-
       end
     end
 
