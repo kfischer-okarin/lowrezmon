@@ -25,17 +25,18 @@ class MenuNavigation
 
   def tick(args)
     @selection_changed = false
-    key_down = args.inputs.keyboard.key_down
+    keyboard = args.inputs.keyboard.key_down
+    controller = args.inputs.controller_one.key_down
     if @horizontal
-      if key_down.left
+      if keyboard.left || controller.left
         self.selected_index -= 1
-      elsif key_down.right
+      elsif keyboard.right || controller.right
         self.selected_index += 1
       end
     else
-      if key_down.up
+      if keyboard.up || controller.up
         self.selected_index -= 1
-      elsif key_down.down
+      elsif keyboard.down || controller.down
         self.selected_index += 1
       end
     end
