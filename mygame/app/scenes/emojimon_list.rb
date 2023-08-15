@@ -8,7 +8,7 @@ module Scenes
       @emojimons_menu = MenuNavigation.new(
         SPECIES.keys,
         loop: false,
-        selected_index: SPECIES.keys.index(selected_emoji)
+        selected_index: SPECIES.keys.index(selected_emoji) || 0
       )
     end
 
