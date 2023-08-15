@@ -27,6 +27,9 @@ module Scenes
         team[slot] = @emojimons_menu.selected_child
 
         $next_scene = @previous_scene
+      elsif Controls.cancel?(args.inputs)
+        SFX.play args, :cancel
+        $next_scene = @previous_scene
       end
     end
 
