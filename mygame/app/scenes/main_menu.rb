@@ -1,6 +1,7 @@
 module Scenes
   class MainMenu
     def initialize(args)
+      SaveData.load(args)
       @font = build_pokemini_font
       @menu = MenuNavigation.new TOURNAMENTS.map { |tournament|
         { tournament: tournament, label: tournament[:name], color: tournament[:color] }
@@ -37,6 +38,14 @@ module Scenes
               x: 2, y: y, w: 60, h: 9, path: 'sprites/main_menu_button_select_border.png',
             }
           end
+        end
+      end
+
+      @menu.children.each_with_index do |item, index|
+        if state.save_data.won_tournaments.include?(item[:tournament][:name])
+          screen.primitives << {
+            x: 3 + (index * 20), y: 4, w: 18, h: 18, path: 'sprites/trophy.png',
+          }.sprite!(item[:color])
         end
       end
     end
