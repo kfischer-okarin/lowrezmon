@@ -11,6 +11,15 @@ module SaveData
       $gtk.serialize_state('save_data.txt', args.state.save_data)
     end
 
+    def retrieve(args, key)
+      args.state.save_data.send(key)
+    end
+
+    def store(args, key, value)
+      args.state.save_data.send("#{key}=", value)
+      save(args)
+    end
+
     private
 
     def parse_save_data_file

@@ -3,8 +3,15 @@ module Scenes
     def initialize(args)
       SaveData.load(args)
       @font = build_pokemini_font
-      @menu = MenuNavigation.new TOURNAMENTS.map { |tournament|
-        { tournament: tournament, label: tournament[:name], color: tournament[:color] }
+      won_tournaments = SaveData.retrieve(args, :won_tournaments)
+      @menu = MenuNavigation.new TOURNAMENTS.map_with_index { |tournament, index|
+        {
+          tournament: tournament,
+          label: tournament[:name],
+          color: tournament[:color],
+          won: won_tournaments.include?(tournament[:name]),
+          unlocked: index.zero? || won_tournaments.include?(TOURNAMENTS[index - 1][:name]),
+        }
       }
     end
 
@@ -16,8 +23,12 @@ module Scenes
       end
 
       if Controls.confirm?(args.inputs)
-        SFX.play args, :confirm
-        $next_scene = Scenes::Tournament.new args, tournament: @menu.selected_child[:tournament]
+        if @menu.selected_child[:unlocked]
+          SFX.play args, :confirm
+          $next_scene = Scenes::Tournament.new args, tournament: @menu.selected_child[:tournament]
+        else
+          SFX.play args, :cancel
+        end
       end
     end
 
@@ -28,9 +39,10 @@ module Scenes
 
       @menu.children.each_with_index do |item, index|
         y = 50 - (index * 10)
+        color = item[:unlocked] ? item[:color] : Palette::DARK_GREY
         screen.primitives << {
           x: 2, y: y, w: 60, h: 9, path: 'sprites/main_menu_button.png',
-        }.sprite!(item[:color])
+        }.sprite!(color)
         screen.primitives << @font.build_label(text: item[:label], x: 32, y: y + 1, alignment_enum: 1)
         if @menu.selected_index == index
           if state.tick_count % 60 < 30
@@ -42,9 +54,9 @@ module Scenes
       end
 
       @menu.children.each_with_index do |item, index|
-        if state.save_data.won_tournaments.include?(item[:tournament][:name])
+        if item[:won]
           screen.primitives << {
-            x: 3 + (index * 20), y: 4, w: 18, h: 18, path: 'sprites/trophy.png',
+            x: 3 + (index * 20), y: 4, w: 18, h: 18, path: 'sprites/trophy.png'
           }.sprite!(item[:color])
         end
       end
