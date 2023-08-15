@@ -1,11 +1,15 @@
 module Scenes
   class EmojimonList
-    def initialize(previous_scene:)
+    def initialize(previous_scene:, selected_emoji: nil)
       @previous_scene = previous_scene
       @font = build_pokemini_font
       @fatnumbers_font = build_pokemini_fatnumbers_font
       @emojimons = SPECIES
-      @emojimons_menu = MenuNavigation.new SPECIES.keys, loop: false
+      @emojimons_menu = MenuNavigation.new(
+        SPECIES.keys,
+        loop: false,
+        selected_index: SPECIES.keys.index(selected_emoji)
+      )
     end
 
     def update(args)

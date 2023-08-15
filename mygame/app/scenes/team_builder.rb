@@ -38,7 +38,7 @@ module Scenes
         case @ui.selected_child
         when @slots_menu
           args.state.team_builder.selected_slot = @slots_menu.selected_index
-          $next_scene = Scenes::EmojimonList.new(previous_scene: self)
+          $next_scene = Scenes::EmojimonList.new(previous_scene: self, selected_emoji: @team[@slots_menu.selected_index])
         when @go_button
           if @team.all?(&:nil?)
             SFX.play args, :cancel
