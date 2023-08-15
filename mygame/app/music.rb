@@ -1,20 +1,26 @@
 module Music
   class << self
-    TRACKS = {
-      main_menu: {
-        input: 'music/colosseum.mp3',
-        gain: 0.4
-      },
-      battle: {
-        input: 'music/they_be_angry.mp3',
-        gain: 0.4
-      }
-    }
-
     def play(args, track_id)
-      return if args.audio[:bgm]&.input == TRACKS[track_id][:input]
+      case track_id
+      when :main_menu
+        file = 'music/colosseum.mp3'
+        return if args.audio[:bgm]&.input == file
 
-      args.audio[:bgm] = { looping: true }.merge TRACKS[track_id]
+        args.audio[:bgm] = {
+          input: file,
+          gain: 0.4,
+          looping: true
+        }
+      when :battle
+        file = 'music/they_be_angry.mp3'
+        return if args.audio[:bgm]&.input == file
+
+        args.audio[:bgm] = {
+          input: file,
+          gain: 0.4,
+          looping: true
+        }
+      end
     end
 
     def stop(args)
