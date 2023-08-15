@@ -19,14 +19,14 @@ module Music
           input: file,
           gain: 0.4,
           looping: true,
-          # paused: true,
-          # start_at_tick: args.tick_count + 180
+          paused: true,
+          start_at_tick: args.tick_count + 160
         }
 
-        # args.audio[:bgm_intro] = {
-        #   input: 'music/they_be_angry_intro.ogg',
-        #   gain: 0.4
-        # }
+        args.audio[:bgm_intro] = {
+          input: 'music/they_be_angry_intro.ogg',
+          gain: 0.4
+        }
       end
     end
 
