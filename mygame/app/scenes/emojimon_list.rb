@@ -35,12 +35,20 @@ module Scenes
       screen.primitives << @font.build_label(text: @selected_emoji.name, x: 22, y: 54)
       screen.primitives << {x: 22, y: 52, h: 1, w: 16}.solid!
 
-      screen.primitives << @font.build_label(text: "Att.", x: 22, y: 38,  r:  60, g: 60, b: 60)
-      screen.primitives << @font.build_label(text: "Def.", x: 22, y: 30,  r: 60, g: 60, b: 60)
-      screen.primitives << @font.build_label(text: "Speed", x: 22, y: 22, r: 60, g: 60, b: 60)
-      screen.primitives << @fatnumbers_font.build_label(text: "#{@selected_emoji.attack}", x: 52, y: 38)
-      screen.primitives << @fatnumbers_font.build_label(text: "#{@selected_emoji.defense}", x: 52, y: 30)
-      screen.primitives << @fatnumbers_font.build_label(text: "#{@selected_emoji.speed}", x: 52, y: 22)
+      screen.primitives << @font.build_label(text: "Type", x: 22, y: 44,  r:  60, g: 60, b: 60)
+      screen.primitives << type_label(@selected_emoji.type, x: 22, y: 35)
+
+      y = 24
+      screen.primitives << @font.build_label(text: "Att.", x: 22, y: y, r:  60, g: 60, b: 60)
+      screen.primitives << @fatnumbers_font.build_label(text: "#{@selected_emoji.attack}", x: 52, y: y)
+      y -= 8
+      screen.primitives << @font.build_label(text: "Def.", x: 22, y: y,  r: 60, g: 60, b: 60)
+      screen.primitives << @fatnumbers_font.build_label(text: "#{@selected_emoji.defense}", x: 52, y: y)
+      y -= 8
+      screen.primitives << @font.build_label(text: "Speed", x: 22, y: y, r: 60, g: 60, b: 60)
+      screen.primitives << @fatnumbers_font.build_label(text: "#{@selected_emoji.speed}", x: 52, y: y)
+
+
 
       #emojis and selection box
       screen.primitives << visible_emojies.map.with_index do |emoji, index|
@@ -77,6 +85,15 @@ module Scenes
       else
         @emojimons.values[selected - 1, 3]
       end
+    end
+
+    def type_label(type, x:, y:)
+      label = type.to_s.capitalize
+      label_w = @font.string_w(label)
+      [
+        { x: x, y: y, w: label_w + 2, h: 8, path: :pixel }.sprite!(Palette::TYPE_COLOR[type]),
+        @font.build_label(text: label, x: x + 1, y: y + 1, **Palette::WHITE)
+      ]
     end
   end
 end
