@@ -182,6 +182,8 @@ module Scenes
       result = emojimon.merge(SPECIES[emojimon[:species]])
       result[:attacks] ||= []
       result[:attacks] = result[:attacks].map { |attack| ATTACKS[attack].merge(id: attack) }
+      # Add reference to emojimon inside the trainer's emojimon list
+      # so we can keep the HP in sync
       result[:trainer_emojimon] = emojimon
       result
     end
@@ -434,6 +436,8 @@ module Scenes
         0, element[:duration],
         element[:start_hp], element[:target_hp]
       ).floor
+      # This is a hack to make sure that the HP inside the trainer's emojimon
+      # stays in sync with the HP inside the battle scene's emojimon.
       element[:emojimon][:trainer_emojimon][:hp] = element[:emojimon][:hp]
     end
 
