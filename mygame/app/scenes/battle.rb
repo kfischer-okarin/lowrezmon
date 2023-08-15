@@ -91,6 +91,7 @@ module Scenes
         queue_next_turn_resolution
         @battle.state = :go_to_next_state_after_messages
       when :opponent_emojimon_dead
+        @battle.opponent_stats_visible = false
         queue_message("#{opponent.emojimon[:name]} disintegrates!")
         queue_opponent_emojimon_death
         if remaining_emojimon_count(opponent).positive?
@@ -101,6 +102,7 @@ module Scenes
         end
         @battle.state = :go_to_next_state_after_messages
       when :player_emojimon_dead
+        @battle.player_stats_visible = false
         queue_message("#{player.emojimon[:name]} disintegrates!")
         queue_player_emojimon_death
         case remaining_emojimon_count(player)
