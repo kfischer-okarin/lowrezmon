@@ -56,7 +56,6 @@ def update(args)
 
   handle_screenshot(args)
   handle_toggle_debug_screen(args)
-  handle_toggle_team_builder_screen(args)
 end
 
 def render(args)
@@ -120,18 +119,6 @@ def handle_toggle_debug_screen(args)
   else
     $original_scene = $scene
     $next_scene = Scenes::DebugScreen.new
-  end
-end
-
-def handle_toggle_team_builder_screen(args)
-  return unless args.inputs.keyboard.key_down.one
-
-  if $original_scene
-    $next_scene = $original_scene
-    $original_scene = nil
-  else
-    $original_scene = $scene
-    $next_scene = Scenes::TeamBuilder.new(args)
   end
 end
 
