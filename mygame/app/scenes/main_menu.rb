@@ -26,8 +26,7 @@ module Scenes
       }.sprite!(Palette::MAIN_MENU_BG_COLOR)
 
       @menu.children.each_with_index do |item, index|
-        y = 50 - index * 10
-        label_w = @font.string_w(item[:label])
+        y = 50 - (index * 10)
         screen.primitives << {
           x: 2, y: y, w: 60, h: 9, path: 'sprites/main_menu_button.png',
         }.sprite!(item[:color])
