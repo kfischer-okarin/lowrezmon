@@ -58,6 +58,27 @@ def test_cutscene(args, assert)
   assert.true! Cutscene.finished?(cutscene)
 end
 
+def test_cutscene_element_without_duration_has_duration_1(args, assert)
+  cutscene = Cutscene.build_empty
+  Cutscene.schedule_element cutscene, tick: 1, type: :some_element
+  handler = CutsceneTests::Handler.new :some_element_tick
+
+  args.tick_count = 1
+  Cutscene.tick args, cutscene, handler: handler
+
+  assert.equal! handler.calls, [
+    [:some_element_tick, { elapsed_ticks: 0, duration: 1 }]
+  ]
+  assert.false! Cutscene.finished?(cutscene)
+
+  handler.calls.clear
+  args.tick_count = 2
+  Cutscene.tick args, cutscene, handler: handler
+
+  assert.equal! handler.calls, []
+  assert.true! Cutscene.finished?(cutscene)
+end
+
 module CutsceneTests
   class Handler
     attr_reader :calls

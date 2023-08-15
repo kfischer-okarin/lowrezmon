@@ -10,8 +10,10 @@ module Cutscene
     def schedule_element(cutscene, element)
       scheduled_elements = cutscene[:scheduled_elements]
       tick = element.fetch(:tick)
+      scheduled_element = element.except(:tick)
+      scheduled_element[:duration] ||= 1
       scheduled_elements[tick] ||= []
-      scheduled_elements[tick] << element.except(:tick)
+      scheduled_elements[tick] << scheduled_element
     end
 
     def finished?(cutscene)

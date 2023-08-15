@@ -230,7 +230,7 @@ module Scenes
     end
 
     def queue_message(message, tick: @tick_count + 1)
-      Cutscene.schedule_element @battle.cutscene, tick: tick, type: :queue_message, message: message, duration: 1
+      Cutscene.schedule_element @battle.cutscene, tick: tick, type: :queue_message, message: message
     end
 
     def queue_opponent_emojimon_appearance(tick: @tick_count + 1)
@@ -307,14 +307,14 @@ module Scenes
     def queue_player_attack_animation(tick: @tick_count + 1)
       duration = 20
       Cutscene.schedule_element @battle.cutscene, tick: tick, type: :shake, target: @battle.opponent.sprite, duration: duration
-      Cutscene.schedule_element @battle.cutscene, tick: tick, type: :play_sfx, id: :hit, duration: 1
+      Cutscene.schedule_element @battle.cutscene, tick: tick, type: :play_sfx, id: :hit
       tick + duration
     end
 
     def queue_opponent_attack_animation(tick: @tick_count + 1)
       duration = 20
       Cutscene.schedule_element @battle.cutscene, tick: tick, type: :shake, target: @battle.player.sprite, duration: duration
-      Cutscene.schedule_element @battle.cutscene, tick: tick, type: :play_sfx, id: :hit, duration: 1
+      Cutscene.schedule_element @battle.cutscene, tick: tick, type: :play_sfx, id: :hit
       tick + duration
     end
 
@@ -338,7 +338,7 @@ module Scenes
                                 type: :fadeout_sprite,
                                 sprite: @battle.opponent.sprite,
                                 duration: 60
-      Cutscene.schedule_element @battle.cutscene, tick: tick, type: :play_sfx, id: :death, duration: 1
+      Cutscene.schedule_element @battle.cutscene, tick: tick, type: :play_sfx, id: :death
     end
 
     def queue_player_emojimon_death(tick: @tick_count + 1)
@@ -347,7 +347,7 @@ module Scenes
                                 type: :fadeout_sprite,
                                 sprite: @battle.player.sprite,
                                 duration: 60
-      Cutscene.schedule_element @battle.cutscene, tick: tick, type: :play_sfx, id: :death, duration: 1
+      Cutscene.schedule_element @battle.cutscene, tick: tick, type: :play_sfx, id: :death
     end
 
     def queue_player_emojimon_retreat(tick: @tick_count + 1)

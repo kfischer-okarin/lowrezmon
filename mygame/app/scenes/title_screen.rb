@@ -20,9 +20,9 @@ module Scenes
       case @state
       when :title_appearing
         Cutscene.schedule_element @cutscene, tick: args.tick_count + 1, type: :title_top, duration: 150
-        Cutscene.schedule_element @cutscene, tick: args.tick_count + 125, type: :music, duration: 1
+        Cutscene.schedule_element @cutscene, tick: args.tick_count + 125, type: :music
         Cutscene.schedule_element @cutscene, tick: args.tick_count + 151, type: :flash, duration: 60
-        Cutscene.schedule_element @cutscene, tick: args.tick_count + 151, type: :title_bottom_appears, duration: 1
+        Cutscene.schedule_element @cutscene, tick: args.tick_count + 151, type: :title_bottom_appears
       when :waiting_for_button
         if Controls.confirm?(args.inputs)
           SFX.play args, :hit
