@@ -20,7 +20,7 @@ BRONZE = {
       name: 'KALI',
       emojimons: [
         { species: :evil, hp: 24 },
-        { species: :freeze, hp: 24 },
+        { species: :cold, hp: 24 },
         { species: :love, hp: 24 },
       ]
     }
@@ -106,7 +106,7 @@ GOLD = {
       name: 'ASH',
       emojimons: [
         { species: :evil, hp: 24 },
-        { species: :freeze, hp: 24 },
+        { species: :cold, hp: 24 },
         { species: :love, hp: 24 },
       ]
     }
