@@ -24,3 +24,4 @@ Gemfile.lock
 
 mygame/screenshots
 mygame/app/repl.rb
+save_data.txt

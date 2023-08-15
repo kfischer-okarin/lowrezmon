@@ -1,0 +1,12 @@
+#!/bin/sh
+
+if [ -f mygame/save_data.txt ]; then
+  mv mygame/save_data.txt save_data.txt
+fi
+
+rm -rf builds
+./dragonruby-publish --package
+
+if [ -f save_data.txt ]; then
+  mv save_data.txt mygame/save_data.txt
+fi
