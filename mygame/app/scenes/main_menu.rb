@@ -34,7 +34,7 @@ module Scenes
 
     def render(screen, state)
       screen.primitives << {
-        x: 0, y: 0, w: 64, h: 64, path: :pixel,
+        x: 0, y: 0, w: 64, h: 64, path: :pixel
       }.sprite!(Palette::MAIN_MENU_BG_COLOR)
 
       @menu.children.each_with_index do |item, index|
