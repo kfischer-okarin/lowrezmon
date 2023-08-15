@@ -41,10 +41,20 @@ module Scenes
             restore_player_emojimons_health
             @state = :next_opponent
           else
+            Music.play args, :main_menu
+            won_tournaments = SaveData.retrieve(args, :won_tournaments)
+            won_tournaments << @tournament[:name]
+            won_tournaments.uniq!
+            SaveData.store(args, :won_tournaments, won_tournaments)
             @state = :tournament_won
           end
         else
           @state = :game_over
+        end
+      when :tournament_won
+        if Controls.confirm?(args.inputs)
+          SFX.play(args, :hit)
+          $next_scene = Scenes::MainMenu.new args
         end
       end
     end
@@ -65,6 +75,19 @@ module Scenes
           screen.primitives << @font.build_label(text: 'Press SPACE', x: 32, y: 18, alignment_enum: 1)
           screen.primitives << @font.build_label(text: 'to start', x: 32, y: 10, alignment_enum: 1)
         end
+      when :tournament_won
+        screen.primitives << {
+          x: 0, y: 0, w: 64, h: 64, path: :pixel
+        }.sprite!(Palette::BLACK)
+
+        screen.primitives << {
+          x: 16, y: 30, w: 32, h: 32,
+          path: 'sprites/trophy_big.png'
+        }.sprite!(@tournament[:color])
+
+        screen.primitives << @font.build_label(text: 'You won the', x: 32, y: 20, alignment_enum: 1, **Palette::WHITE)
+        screen.primitives << @font.build_label(text: @tournament[:name].upcase, x: 32, y: 13, alignment_enum: 1, **Palette::WHITE)
+        screen.primitives << @font.build_label(text: 'Press SPACE', x: 32, y: 1, alignment_enum: 1, **Palette::WHITE)
       end
     end
 
