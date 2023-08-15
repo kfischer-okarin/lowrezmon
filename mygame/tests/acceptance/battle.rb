@@ -253,6 +253,7 @@ class BattleTest
   def start_battle(player_trainer:, opponent_trainer:)
     $scene = Scenes::Battle.new(
       @args,
+      previous_scene: nil,
       player_trainer: player_trainer,
       opponent_trainer: opponent_trainer
     )
