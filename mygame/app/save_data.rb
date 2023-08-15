@@ -1,8 +1,8 @@
 module SaveData
   class << self
     def load(args)
-      new_save_data = {
-        won_tournaments: []
+      new_save_data = args.state.new_entity(:save_data) { |save_data|
+        save_data.won_tournaments = []
       }
       args.state.save_data = parse_save_data_file || new_save_data
     end
