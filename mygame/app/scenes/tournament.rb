@@ -51,7 +51,7 @@ module Scenes
         else
           @state = :game_over
         end
-      when :tournament_won
+      when :tournament_won, :game_over
         if Controls.confirm?(args.inputs)
           SFX.play(args, :hit)
           $next_scene = Scenes::MainMenu.new args
@@ -88,6 +88,40 @@ module Scenes
         screen.primitives << @font.build_label(text: 'You won the', x: 32, y: 20, alignment_enum: 1, **Palette::WHITE)
         screen.primitives << @font.build_label(text: @tournament[:name].upcase, x: 32, y: 13, alignment_enum: 1, **Palette::WHITE)
         screen.primitives << @font.build_label(text: 'Press SPACE', x: 32, y: 1, alignment_enum: 1, **Palette::WHITE)
+      when :game_over
+        screen.primitives << {
+          x: 0, y: 0, w: 64, h: 64, path: :pixel
+        }.sprite!(Palette::BLACK)
+
+        screen.primitives << {
+          x: 16, y: 30, w: 32, h: 32,
+          tile_x: 128, tile_y: 16, tile_w: 16, tile_h: 16,
+          path: 'sprites/emojis.png'
+        }
+
+        offset = (state.tick_count % 48).idiv(3)
+        screen.primitives << {
+          x: 25, y: 45 - offset, w: 1, h: 3, path: :pixel
+        }.sprite!(Palette::TEAR_HIGHLIGHT_COLOR)
+
+        offset = ((state.tick_count + 16) % 48).idiv(3)
+        screen.primitives << {
+          x: 27, y: 45 - offset, w: 1, h: 3, path: :pixel
+        }.sprite!(Palette::TEAR_HIGHLIGHT_COLOR)
+
+        offset = ((state.tick_count + 12) % 48).idiv(3)
+        screen.primitives << {
+          x: 38, y: 45 - offset, w: 1, h: 3, path: :pixel
+        }.sprite!(Palette::TEAR_HIGHLIGHT_COLOR)
+
+        offset = ((state.tick_count + 30) % 48).idiv(3)
+        screen.primitives << {
+          x: 36, y: 45 - offset, w: 1, h: 3, path: :pixel
+        }.sprite!(Palette::TEAR_HIGHLIGHT_COLOR)
+
+        screen.primitives << @font.build_label(text: 'GAME OVER', x: 32, y: 20, alignment_enum: 1, **Palette::WHITE)
+        screen.primitives << @font.build_label(text: 'Press SPACE', x: 32, y: 1, alignment_enum: 1, **Palette::WHITE)
+
       end
     end
 

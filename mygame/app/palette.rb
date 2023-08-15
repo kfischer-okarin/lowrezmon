@@ -17,4 +17,5 @@ module Palette
   SELECT_EMOJIMON_BG_COLOR = { r: 0x49, g: 0xa2, b: 0x69 }.freeze
   CURRENT_EMOJIMON_COLOR = { r: 0xFF, g: 0x79, b: 0x30 }.freeze
   SELECTED_COLOR = { r: 0x61, g: 0xA2, b: 0xFF }.freeze
+  TEAR_HIGHLIGHT_COLOR = { r: 0xA2, g: 0xFF, b: 0xF3 }.freeze
 end
